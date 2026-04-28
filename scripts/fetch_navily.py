@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fetch Navily anchorage/marina data via Wayback Machine (bypasses Cloudflare).
 
-Usage: python3 scripts/fetch_navily.py <voyage-name>
-  Reads URLs from voyages/<voyage-name>/navily_urls.txt (one per line, # for comments).
-  Writes voyages/<voyage-name>/data/navily.json (cached) and updates harbors.json.
+Usage: python3 scripts/fetch_navily.py
+  Reads URLs from navily_urls.txt at the repo root (one per line, # for comments).
+  Writes data/navily.json (cached) and updates data/harbors.json with matches.
 """
 import os, re, json, time, math, sys, urllib.request, urllib.parse
 
@@ -164,11 +164,7 @@ def load_urls(path):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: fetch_navily.py <voyage-name>")
-        sys.exit(1)
-    voyage = sys.argv[1]
-    root = os.path.join(os.path.dirname(__file__), "..", "voyages", voyage)
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     urls_path = os.path.join(root, "navily_urls.txt")
     data_dir = os.path.join(root, "data")
     cache_path = os.path.join(data_dir, "navily.json")
@@ -176,8 +172,7 @@ def main():
 
     candidates = load_urls(urls_path)
     if not candidates:
-        print(f"[{voyage}] no URLs in {urls_path} — skipping Navily fetch")
-        # still clear matches so harbors.json is consistent
+        print(f"no URLs in {urls_path} — skipping Navily fetch")
         if os.path.exists(harbors_path):
             with open(harbors_path) as fh:
                 hs = json.load(fh)
@@ -234,7 +229,7 @@ def main():
         json.dump(harbors, fh, indent=2)
 
     matched = sum(1 for h in harbors if h["navily"])
-    print(f"[{voyage}] {len(navily)} Navily records, {matched}/{len(harbors)} harbors matched")
+    print(f"{len(navily)} Navily records, {matched}/{len(harbors)} harbours matched")
 
 
 if __name__ == "__main__":

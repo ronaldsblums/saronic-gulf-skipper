@@ -1,37 +1,48 @@
 #!/usr/bin/env python3
-"""Bundle log template with embedded JSON data → sailing-log-<voyage>.html.
+"""Bundle index.html with embedded JSON data into a single shareable file.
 
-Usage: python3 scripts/build_standalone.py <voyage-name>
+Usage: python3 scripts/build_standalone.py
+  Reads:  index.html, data/trips.json, data/harbors.json, data/navily.json
+  Writes: sailing-log.html (single-file, openable directly without a server)
 """
 import json, os, re, sys
 
-HERE = os.path.dirname(__file__)
-TEMPLATE = os.path.join(HERE, "log_template.html")
+HERE = os.path.abspath(os.path.dirname(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, ".."))
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: build_standalone.py <voyage-name>")
+    src = os.path.join(ROOT, "index.html")
+    out = os.path.join(ROOT, "sailing-log.html")
+    data = os.path.join(ROOT, "data")
+    if not os.path.exists(src):
+        print(f"ERROR: {src} not found")
         sys.exit(1)
-    voyage = sys.argv[1]
-    root = os.path.join(HERE, "..", "voyages", voyage)
-    data = os.path.join(root, "data")
-    out = os.path.join(root, f"sailing-log-{voyage}.html")
 
-    with open(TEMPLATE) as f:
+    with open(src) as f:
         html = f.read()
-    with open(os.path.join(data, "trips.json")) as f: trips = f.read()
-    with open(os.path.join(data, "harbors.json")) as f: harbors = f.read()
+    with open(os.path.join(data, "trips.json")) as f:
+        trips = f.read()
+    with open(os.path.join(data, "harbors.json")) as f:
+        harbors = f.read()
     navily_path = os.path.join(data, "navily.json")
     navily = open(navily_path).read() if os.path.exists(navily_path) else "{}"
 
-    inline = f"Promise.resolve([\n      {trips},\n      {harbors},\n      {navily}\n    ])"
-    html = re.sub(r"Promise\.all\(\[[^\]]+\]\)", lambda _: inline, html, count=1, flags=re.S)
-    html = html.replace("Sailing Log — Greek Islands", f"Sailing Log — {voyage}")
+    inline = (
+        "Promise.resolve([\n"
+        f"      {trips},\n"
+        f"      {harbors},\n"
+        f"      {navily}\n"
+        "    ])"
+    )
+    new_html, n = re.subn(r"Promise\.all\(\[[^\]]+\]\)", lambda _: inline, html, count=1, flags=re.S)
+    if n != 1:
+        print("ERROR: could not find Promise.all data-fetch block in index.html")
+        sys.exit(1)
 
     with open(out, "w") as f:
-        f.write(html)
-    print(f"[{voyage}] wrote {out} ({os.path.getsize(out)/1024:.1f} KB)")
+        f.write(new_html)
+    print(f"wrote {out} ({os.path.getsize(out)/1024:.1f} KB)")
 
 
 if __name__ == "__main__":

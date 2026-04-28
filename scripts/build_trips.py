@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Parse GPX files in a voyage folder, extract trips + harbors to JSON.
+"""Parse GPX files at the repo root, extract trips + harbour clusters to JSON.
 
-Usage: python3 scripts/build_trips.py <voyage-name>
-  Reads:  voyages/<voyage-name>/gpx/*.gpx
-  Writes: voyages/<voyage-name>/data/trips.json, harbors.json
+Usage: python3 scripts/build_trips.py
+  Reads:  gpx/*.gpx
+  Writes: data/trips.json, data/harbors.json
 """
 import xml.etree.ElementTree as ET
 import os, glob, json, math, sys
@@ -116,11 +116,7 @@ def cluster_harbors(all_stops):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: build_trips.py <voyage-name>")
-        sys.exit(1)
-    voyage = sys.argv[1]
-    root = os.path.join(os.path.dirname(__file__), "..", "voyages", voyage)
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     gpx_dir = os.path.join(root, "gpx")
     out_dir = os.path.join(root, "data")
     if not os.path.isdir(gpx_dir):
@@ -174,7 +170,7 @@ def main():
     with open(os.path.join(out_dir, "harbors.json"), "w") as fh:
         json.dump(harbors, fh, indent=2)
 
-    print(f"[{voyage}] {len(trips)} trips, {len(harbors)} harbors")
+    print(f"{len(trips)} trips, {len(harbors)} harbours")
 
 
 if __name__ == "__main__":

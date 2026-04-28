@@ -1,50 +1,118 @@
-# Saronic Gulf Skipper Decision Tool
+# Saronic Gulf Sailing Log
 
-**Boat:** Jeanneau Sun Odyssey 440, 4-cabin, 2019 (draft 2.20m)
-**Base:** Piraeus Marina
-**Trip:** 6-day sailing (Sun check-in, Mon departure, Sat return)
+A friend-facing visual log of the routes we've sailed in the Saronic Gulf —
+assembled from GPX tracks into a single map app you can browse or share.
 
-## What Was Built
+The app shows:
 
-An interactive skipper decision-support tool for real-time sailing decisions in the Saronic Gulf. Two versions:
+- **Voyages** — multi-day trips grouped by date, each with a colour on the map.
+- **Day legs** — every GPX file as a clickable polyline, with date and distance.
+- **Harbours** — clusters of stops, with visit counts and (where available)
+  community references from Navily.
+- **Totals** — sailing days, nautical miles, voyages, harbours.
 
-- **`index.html`** — Primary version. Loads location data from `data/locations.json` at runtime. Requires an HTTP server (run `bash serve.sh` then open `http://localhost:8080`).
-- **`saronic-gulf-skipper-tool.html`** — Self-contained version with all locations embedded. Open directly in any browser, no server needed. Good for sharing with co-travelers.
+This is a memory map, not a navigation tool. Harbour names are auto-resolved from
+coordinates and shown with an "approx." badge where the match is loose. Anything
+under "Anchorage / Marina reference" is community data (Navily reviews, services,
+seabed) — useful context, not safety guidance.
 
-Both versions fetch live weather forecasts from the Open-Meteo API.
+## Run it
 
-### Features
+The app is a single `index.html` (React + Leaflet via CDN) that fetches three
+JSON files from `data/`. Because browsers block `fetch()` on `file://`, you need a
+tiny local server:
 
-**Dashboard** — Live wind conditions (current, +12h, +24h, +48h trends), best stops ranked by real-time suitability, quick stats.
+```bash
+bash serve.sh        # serves http://localhost:8080
+```
 
-**Route Planner** — 6-day itinerary builder (Mon–Sat) with Plan A / Plan B support. Each stop shows leg distance (nm), ETA at 5.5kt and 6.5kt, suitability status, depth/draft warnings, and route warnings (long legs, exposed destinations, settled-weather-only stops, nearest fallback). Route selections sync with the Map view.
+Then open http://localhost:8080 in your browser.
 
-**Map View** — Leaflet interactive map with CartoDB Voyager base tiles and OpenSeaMap seamark overlay. Markers color-coded by suitability. Click any marker for full details. Active route drawn as dashed polylines.
+For a single-file version that works without a server (good for sharing via
+Dropbox / e-mail), build the standalone:
 
-**Locations** — Filterable directory of all stops with expandable detail cards. Filters: island, type, wind protection direction, overnight safe, settled weather, fuel, water, electricity, safe depth, fallback value, suitability (now/tomorrow).
+```bash
+python3 scripts/build_standalone.py
+# -> sailing-log.html  (data inlined)
+```
 
-**Compare** — Select 2–4 locations for side-by-side comparison.
+## Layout
 
-### Decision Engine
+```
+gpx/                 GPX files from the GPS / chart plotter
+data/
+  trips.json         per-track summary + simplified polyline
+  harbors.json       clustered stop locations + reverse-geocoded names
+  navily.json        Navily anchorage/marina records (cached, optional)
+navily_urls.txt      Navily URLs to scrape, one per line
+index.html           the friend-facing app
+serve.sh             local HTTP server helper
+scripts/
+  build_trips.py     GPX -> trips.json + harbors.json
+  geocode_harbors.py harbours -> OSM names (Nominatim)
+  fetch_navily.py    URLs -> navily.json + harbour matches
+  build_standalone.py index.html + data -> sailing-log.html
+  build.sh           runs the four steps in order
+```
 
-The suitability engine evaluates each location against clustered live forecasts:
+One repo = one voyage area. Drop more GPX files into `gpx/` and re-run the
+pipeline; the app will pick them up.
 
-- Locations are grouped into forecast clusters by geographic proximity (≤3nm radius). Each cluster gets its own API call using its centroid coordinates. With the current locations this produces clusters per island group.
-- Fetches wind speed, direction, gusts from Open-Meteo `/v1/forecast` (knots), and marine data (wave height, swell) from `/v1/marine`, per cluster.
-- Score-based system (0–100) with penalties for: wind exposure, high gusts (>25kt, >30kt), wave height (>1.5m, >2.5m), settled-weather-only conditions, non-overnight locations, difficult approaches, ferry wake, and draft/depth clearance.
-- Draft awareness: 2.20m draft + 0.50m safety margin = 2.70m minimum safe depth. Locations with shallow spots are flagged with guidance.
-- Status thresholds: Good (70+), Caution (45–69), Poor (20–44), Avoid (<20).
+## Rebuild from GPX
 
-### Forecast Failure Handling
+```bash
+bash scripts/build.sh                 # full pipeline
+bash scripts/build.sh --skip-navily   # skip the slow Wayback scrape
+bash scripts/build.sh --skip-geocode  # skip Nominatim lookups (offline)
+```
 
-A status banner below the header shows:
-- **Live forecast** — all clusters fetched successfully
-- **Partial forecast** — some clusters failed (affected locations show "No forecast")
-- **Forecast unavailable** — all calls failed (suitability is not live)
+The pipeline is idempotent: re-running with the same GPX files produces the
+same JSON. Navily and OSM responses are cached in `data/`.
 
-The banner shows the last successful refresh timestamp and a retry button.
+### Adding Navily references
 
-### Schema Validation
+Edit `navily_urls.txt` (one Navily URL per line, `#` for comments), then:
 
-On startup, `locations.json` is validated before use:
-- Required fields and types
+```bash
+python3 scripts/fetch_navily.py
+```
+
+URLs are fetched via the Wayback Machine (Navily's live site is behind
+Cloudflare). Records within 3 km of a harbour cluster are attached to it.
+
+## Data shape
+
+`trips.json` — array of:
+```jsonc
+{
+  "id": "activity_18948503194",
+  "name": "Aegina Sailing",
+  "date": "2025-04-27",
+  "t_start": "...", "t_end": "...",
+  "distance_km": 24.1, "distance_nm": 13.0,
+  "track": [[lat,lon], ...]   // simplified, ~hundreds of points
+}
+```
+
+`harbors.json` — array of:
+```jsonc
+{
+  "id": "h01",
+  "lat": 37.69099, "lon": 23.45162,
+  "visits": [{ "trip_id": "...", "start": "...", "duration_min": 102, ... }],
+  "osm": { "address": { "village": "...", ... } },
+  "navily": [{ "id": 12345, "kind": "anchorage", "name": "...", "url": "..." }]
+}
+```
+
+`navily.json` — keyed by Navily ID, each record has rating, reviews, seabed,
+mooring, services, image, etc.
+
+## Notes & caveats
+
+- The map uses CartoDB dark tiles; needs internet on first load to fetch them.
+- React, Babel, and Leaflet are loaded from CDN; no build step required.
+- Times are stored and displayed in UTC.
+- "Approx." harbour names are those where Nominatim returned only a region
+  (municipality / county) rather than a specific village or town — common in
+  open anchorages without a settlement nearby.

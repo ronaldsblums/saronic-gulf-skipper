@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⛵ Sailing Log</title>
+<title>Saronic Gulf Sailing Log</title>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -20,48 +20,51 @@ html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'S
 .app{display:flex;height:100vh;width:100vw;overflow:hidden}
 
 /* Sidebar */
-.sb{width:320px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0}
+.sb{width:340px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0}
 .sb-hdr{padding:1rem 1.25rem;border-bottom:1px solid #334155}
 .sb-hdr h1{font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:.15rem}
 .sb-hdr .sub{font-size:.75rem;color:#64748b}
-.sb-stats{display:flex;gap:1rem;padding:.75rem 1.25rem;border-bottom:1px solid #334155;font-size:.75rem}
-.sb-stats .s{flex:1}
+.sb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;padding:.75rem 1.25rem;border-bottom:1px solid #334155;font-size:.75rem}
+.sb-stats .s{text-align:left}
 .sb-stats .n{color:#38bdf8;font-weight:700;font-size:1.05rem}
-.sb-stats .l{color:#64748b;text-transform:uppercase;letter-spacing:.3px;margin-top:.1rem}
+.sb-stats .l{color:#64748b;text-transform:uppercase;letter-spacing:.3px;margin-top:.1rem;font-size:.65rem}
 .sb-tabs{display:flex;border-bottom:1px solid #334155}
 .sb-tab{flex:1;padding:.6rem;background:transparent;color:#94a3b8;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:.82rem;font-weight:500}
 .sb-tab:hover{color:#cbd5e1}
 .sb-tab.on{color:#38bdf8;border-bottom-color:#38bdf8}
 .sb-body{flex:1;overflow-y:auto;padding:.5rem 0}
+.sb-foot{padding:.6rem 1.25rem;border-top:1px solid #334155;font-size:.68rem;color:#64748b;line-height:1.4}
 
 /* Voyage groups */
 .vg{padding:0 .5rem;margin-bottom:.5rem}
 .vg-hdr{padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-radius:3px}
 .vg-hdr:hover{background:#253349}
+.vg-hdr.on{background:rgba(56,189,248,.08)}
 .vg-name{font-size:.85rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:.5rem}
 .vg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.vg-meta{font-size:.7rem;color:#64748b}
+.vg-meta{font-size:.7rem;color:#64748b;margin-top:.15rem;margin-left:1.25rem}
 
 /* Trip row */
-.tr{padding:.4rem .75rem .4rem 1.75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center}
+.tr{padding:.4rem .75rem .4rem 1.75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
 .tr:hover{background:#253349}
 .tr.on{background:rgba(56,189,248,.12)}
-.tr-nm{font-size:.82rem;color:#cbd5e1;font-weight:500}
+.tr-nm{font-size:.82rem;color:#cbd5e1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr-nm .d{font-size:.7rem;color:#64748b;margin-right:.4rem;font-weight:400}
-.tr-dist{font-size:.72rem;color:#94a3b8}
+.tr-dist{font-size:.72rem;color:#94a3b8;flex-shrink:0}
 
 /* Harbor row */
-.hr{padding:.5rem .75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;margin-bottom:.15rem}
+.hr{padding:.5rem .75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;margin-bottom:.15rem;gap:.5rem}
 .hr:hover{background:#253349}
 .hr.on{background:rgba(56,189,248,.12)}
-.hr-nm{font-size:.83rem;color:#e2e8f0;font-weight:500}
+.hr-nm{font-size:.83rem;color:#e2e8f0;font-weight:500;display:flex;align-items:center;gap:.35rem}
 .hr-sub{font-size:.7rem;color:#64748b;margin-top:.1rem}
 .hr-v{background:rgba(56,189,248,.15);color:#93c5fd;padding:.1rem .4rem;border-radius:2px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.hr-approx{background:rgba(148,163,184,.18);color:#94a3b8;padding:.05rem .35rem;border-radius:2px;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
 
 /* Map */
 .map-wrap{flex:1;position:relative}
 #map{width:100%;height:100%;background:#0f172a}
-.leaflet-container{background:#e5e7eb}
+.leaflet-container{background:#0a1423}
 .leaflet-popup-content-wrapper{background:#1e293b;color:#e2e8f0;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .leaflet-popup-content{margin:.6rem .8rem;font-size:.8rem}
 .leaflet-popup-tip{background:#1e293b}
@@ -74,13 +77,14 @@ html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'S
 .dp{position:absolute;top:0;right:0;width:420px;height:100%;background:#1e293b;border-left:1px solid #334155;display:flex;flex-direction:column;box-shadow:-4px 0 12px rgba(0,0,0,.3);z-index:1000;transform:translateX(100%);transition:transform .2s ease}
 .dp.on{transform:translateX(0)}
 .dp-hdr{padding:1rem 1.25rem;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
-.dp-hdr h2{font-size:1.05rem;font-weight:700;color:#e2e8f0;margin-bottom:.2rem;line-height:1.25}
+.dp-hdr h2{font-size:1.05rem;font-weight:700;color:#e2e8f0;margin-bottom:.2rem;line-height:1.25;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .dp-hdr .addr{font-size:.72rem;color:#94a3b8;line-height:1.4}
 .dp-close{background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:1.4rem;line-height:1;padding:0 .2rem}
 .dp-close:hover{color:#e2e8f0}
 .dp-body{flex:1;overflow-y:auto;padding:1rem 1.25rem}
 .dp-section{margin-bottom:1.25rem}
 .dp-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:#64748b;font-weight:700;margin-bottom:.5rem}
+.dp-section .h3-sub{font-size:.7rem;color:#475569;font-weight:400;text-transform:none;letter-spacing:0;margin-left:.4rem}
 
 .chip{display:inline-block;background:#334155;color:#cbd5e1;padding:.2rem .55rem;border-radius:2px;font-size:.72rem;margin:0 .25rem .25rem 0}
 .chip.ok{background:rgba(34,197,94,.15);color:#86efac}
@@ -110,12 +114,18 @@ html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'S
 .hero{width:100%;height:180px;object-fit:cover;border-radius:3px;margin-bottom:.75rem;background:#0f172a}
 .empty{font-size:.8rem;color:#64748b;font-style:italic;padding:.4rem 0}
 
+.approx{display:inline-block;background:rgba(148,163,184,.18);color:#94a3b8;padding:.1rem .4rem;border-radius:2px;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;vertical-align:middle}
+
+.disclaimer{font-size:.7rem;color:#64748b;line-height:1.4;background:#0f172a;border:1px solid #334155;border-radius:3px;padding:.55rem .7rem;margin:0 .5rem .5rem .5rem}
+
 /* Legend */
-.legend{position:absolute;bottom:20px;left:20px;background:rgba(30,41,59,.95);border:1px solid #334155;border-radius:3px;padding:.6rem .8rem;font-size:.72rem;z-index:500;min-width:180px}
+.legend{position:absolute;bottom:20px;left:20px;background:rgba(30,41,59,.95);border:1px solid #334155;border-radius:3px;padding:.6rem .8rem;font-size:.72rem;z-index:500;min-width:200px;max-height:60vh;overflow-y:auto}
 .legend h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:#64748b;margin-bottom:.4rem}
-.legend-row{display:flex;align-items:center;gap:.5rem;padding:.18rem 0;color:#cbd5e1}
-.legend-row .sw{width:22px;height:3px;border-radius:1px}
-.legend-row .cdot{width:8px;height:8px;border-radius:50%}
+.legend-row{display:flex;align-items:center;gap:.5rem;padding:.18rem 0;color:#cbd5e1;cursor:pointer;border-radius:2px;padding-left:.2rem;padding-right:.2rem}
+.legend-row:hover{background:rgba(255,255,255,.04)}
+.legend-row.on{background:rgba(56,189,248,.12);color:#e2e8f0}
+.legend-row .sw{width:22px;height:3px;border-radius:1px;flex-shrink:0}
+.legend-row .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* Harbor marker */
 .hm-ico{background:#38bdf8;border:2px solid #0f172a;border-radius:50%;box-shadow:0 0 0 2px rgba(56,189,248,.4);transition:all .15s}
@@ -129,6 +139,7 @@ html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'S
   .sb.on{transform:translateX(0)}
   .sb-toggle{display:block;position:absolute;top:12px;left:12px;z-index:1400;background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:.4rem .6rem;border-radius:3px;cursor:pointer;font-size:1rem}
   .dp{width:100%}
+  .legend{font-size:.68rem;min-width:160px;max-height:40vh}
 }
 </style>
 </head>
@@ -138,16 +149,10 @@ html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'S
 <script type="text/babel">
 const {useState, useEffect, useRef, useMemo} = React;
 
-// Config injected by build_standalone.py (auto-detected from trip data, CLI-overridable)
-const APP_CONFIG = {"type": "sailing", "emoji": "\u26f5", "title": "Sailing Log", "subtitle": "Jun 2024 \u2013 Oct 2025", "labels": {"voyages": "Voyages", "stop": "port", "stopCap": "Port", "stops": "Ports", "distUnit": "NM"}};
+// Each multi-day voyage gets its own colour on the map
+const VOYAGE_COLORS = ['#38bdf8', '#fcd34d', '#f472b6', '#86efac', '#fb923c', '#a78bfa', '#22d3ee', '#fda4af'];
 
-const VOYAGE_COLORS = ['#ff1744', '#d500f9', '#ff6d00', '#39ff14', '#ffea00', '#76ff03'];
-
-const DIST_FIELD = APP_CONFIG.labels.distUnit === 'NM' ? 'distance_nm' : 'distance_km';
-const distOf = t => t[DIST_FIELD];
-const distUnit = APP_CONFIG.labels.distUnit.toLowerCase();
-
-// Group trips into voyages (consecutive days = same voyage)
+// Group day-trips into voyages (consecutive days, gap ≤2 nights = same voyage)
 function groupVoyages(trips) {
   const sorted = [...trips].sort((a, b) => a.date.localeCompare(b.date));
   const voyages = [];
@@ -163,22 +168,26 @@ function groupVoyages(trips) {
   for (const v of voyages) {
     v.date_start = v.trips[0].date;
     v.date_end = v.trips.at(-1).date;
-    v.dist = v.trips.reduce((s, t) => s + distOf(t), 0);
-    v.days = v.trips.length;
-    v.name = `${formatDateRange(v.date_start, v.date_end)}`;
+    v.nm = v.trips.reduce((s, t) => s + t.distance_nm, 0);
+    v.sailingDays = new Set(v.trips.map(t => t.date)).size;
+    v.spanDays = daysBetween(v.date_start, v.date_end) + 1;
+    v.name = formatDateRange(v.date_start, v.date_end);
     v.season = seasonOf(v.date_start);
   }
   return voyages;
 }
 
 function daysBetween(a, b) {
-  return Math.round((new Date(b) - new Date(a)) / (86400000));
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
 }
 function formatDateRange(a, b) {
   const da = new Date(a), db = new Date(b);
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   if (da.getUTCFullYear() !== db.getUTCFullYear() || da.getUTCMonth() !== db.getUTCMonth()) {
     return `${months[da.getUTCMonth()]} ${da.getUTCDate()} – ${months[db.getUTCMonth()]} ${db.getUTCDate()}, ${db.getUTCFullYear()}`;
+  }
+  if (da.getUTCDate() === db.getUTCDate()) {
+    return `${months[da.getUTCMonth()]} ${da.getUTCDate()}, ${db.getUTCFullYear()}`;
   }
   return `${months[da.getUTCMonth()]} ${da.getUTCDate()}–${db.getUTCDate()}, ${db.getUTCFullYear()}`;
 }
@@ -195,11 +204,19 @@ function formatDuration(mins) {
   const h = Math.floor(mins / 60), m = mins % 60;
   return m ? `${h}h ${m}m` : `${h}h`;
 }
-function harborName(h) {
-  if (!h.osm) return `${h.lat.toFixed(3)}, ${h.lon.toFixed(3)}`;
+
+// Best human-readable harbour name from OSM, or coordinates as fallback.
+// Returns {name, approx} where approx=true means "auto-geocoded, treat with caution".
+function harborLabel(h) {
+  if (!h.osm) {
+    return {name: `${h.lat.toFixed(3)}°N, ${h.lon.toFixed(3)}°E`, approx: true};
+  }
   const a = h.osm.address || {};
-  // Prefer most specific name: village > suburb > town > municipality
-  return a.village || a.hamlet || a.suburb || a.town || a.city || a.neighbourhood || h.osm.name || 'Unknown';
+  const specific = a.village || a.hamlet || a.suburb || a.town || a.city || a.neighbourhood;
+  if (specific) return {name: specific, approx: false};
+  const fallback = h.osm.name || a.municipality || a.county;
+  if (fallback) return {name: fallback, approx: true};
+  return {name: `${h.lat.toFixed(3)}°N, ${h.lon.toFixed(3)}°E`, approx: true};
 }
 function harborArea(h) {
   if (!h.osm) return '';
@@ -219,8 +236,8 @@ function App() {
   const [loadErr, setLoadErr] = useState(null);
   const mapRef = useRef(null);
   const tileLayerRef = useRef(null);
-  const trackLayersRef = useRef({}); // trip_id → polyline
-  const harborMarkersRef = useRef({}); // harbor_id → marker
+  const trackLayersRef = useRef({});
+  const harborMarkersRef = useRef({});
 
   useEffect(() => {
     Promise.resolve([
@@ -6974,10 +6991,10 @@ function App() {
     "name": "Ydrousa Sailing",
     "date": "2025-10-31",
     "t_start": "2025-10-31T03:57:11.000Z",
-    "t_end": "2025-10-31T09:10:32.000Z",
-    "distance_km": 58.35,
-    "distance_nm": 31.51,
-    "point_count": 3115,
+    "t_end": "2025-10-31T10:30:02.000Z",
+    "distance_km": 72.21,
+    "distance_nm": 38.99,
+    "point_count": 3274,
     "track": [
       [
         37.85635,
@@ -7012,16 +7029,20 @@ function App() {
         24.69259
       ],
       [
-        37.83101,
-        24.65854
+        37.83202,
+        24.66568
       ],
       [
-        37.8251,
-        24.6188
+        37.82727,
+        24.6329
       ],
       [
-        37.82078,
-        24.59379
+        37.82301,
+        24.60588
+      ],
+      [
+        37.82077,
+        24.59369
       ],
       [
         37.81816,
@@ -7032,24 +7053,32 @@ function App() {
         24.56495
       ],
       [
-        37.81287,
-        24.55058
+        37.81296,
+        24.55105
       ],
       [
-        37.80887,
-        24.51994
+        37.81132,
+        24.5395
       ],
       [
-        37.80395,
-        24.47857
+        37.80457,
+        24.48415
       ],
       [
-        37.80197,
-        24.45572
+        37.80255,
+        24.46336
       ],
       [
-        37.80069,
-        24.42764
+        37.80144,
+        24.44713
+      ],
+      [
+        37.80091,
+        24.4342
+      ],
+      [
+        37.80047,
+        24.41861
       ],
       [
         37.80037,
@@ -7088,8 +7117,8 @@ function App() {
         24.20557
       ],
       [
-        37.76996,
-        24.15399
+        37.76985,
+        24.15319
       ],
       [
         37.7694,
@@ -7098,6 +7127,46 @@ function App() {
       [
         37.7613,
         24.14223
+      ],
+      [
+        37.7615,
+        24.13
+      ],
+      [
+        37.76,
+        24.11
+      ],
+      [
+        37.75,
+        24.095
+      ],
+      [
+        37.735,
+        24.085
+      ],
+      [
+        37.715,
+        24.09
+      ],
+      [
+        37.705,
+        24.095
+      ],
+      [
+        37.7,
+        24.082
+      ],
+      [
+        37.703,
+        24.069
+      ],
+      [
+        37.711,
+        24.061
+      ],
+      [
+        37.7117,
+        24.05719
       ]
     ]
   }
@@ -7170,37 +7239,7 @@ function App() {
         "trip_id": "activity_18991370010"
       }
     ],
-    "id": "h01",
-    "osm": {
-      "display_name": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1, \u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 180 10, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "village": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "180 10",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1"
-    },
-    "navily": [
-      {
-        "id": 14494,
-        "kind": "anchorage",
-        "name": "Perdika",
-        "distance_km": 0.13,
-        "url": "https://www.navily.com/mouillage/perdika/14494"
-      },
-      {
-        "id": 13512,
-        "kind": "anchorage",
-        "name": "Perdika Egina Nord",
-        "distance_km": 1.63,
-        "url": "https://www.navily.com/mouillage/perdika-egina-nord/13512"
-      }
-    ]
+    "id": "h01"
   },
   {
     "lat": 37.96051,
@@ -7225,23 +7264,7 @@ function App() {
         "trip_id": "activity_15785552217"
       }
     ],
-    "id": "h02",
-    "osm": {
-      "display_name": "\u0391\u03b3\u03b9\u03bf\u03c2 \u039d\u03b9\u03ba\u03cc\u03bb\u03b1\u03bf\u03c2, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a3\u03b1\u03bb\u03b1\u03bc\u03af\u03bd\u03b1\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u03a3\u03b1\u03bb\u03b1\u03bc\u03af\u03bd\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 189 00, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "village": "\u0391\u03b3\u03b9\u03bf\u03c2 \u039d\u03b9\u03ba\u03cc\u03bb\u03b1\u03bf\u03c2",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a3\u03b1\u03bb\u03b1\u03bc\u03af\u03bd\u03b1\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u03a3\u03b1\u03bb\u03b1\u03bc\u03af\u03bd\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "189 00",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u0391\u03b3\u03b9\u03bf\u03c2 \u039d\u03b9\u03ba\u03cc\u03bb\u03b1\u03bf\u03c2"
-    },
-    "navily": []
+    "id": "h02"
   },
   {
     "lat": 37.50149,
@@ -7300,38 +7323,7 @@ function App() {
         "trip_id": "activity_17430777281"
       }
     ],
-    "id": "h03",
-    "osm": {
-      "display_name": "\u039a\u03c5\u03b1\u03bd\u03ae \u0391\u03ba\u03c4\u03ae, \u03a0\u03cc\u03c1\u03bf\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u03a0\u03cc\u03c1\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 180 20, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u039a\u03c5\u03b1\u03bd\u03ae \u0391\u03ba\u03c4\u03ae",
-        "town": "\u03a0\u03cc\u03c1\u03bf\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u03a0\u03cc\u03c1\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "180 20",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u039a\u03c5\u03b1\u03bd\u03ae \u0391\u03ba\u03c4\u03ae"
-    },
-    "navily": [
-      {
-        "id": 33642,
-        "kind": "anchorage",
-        "name": "Poros South Quay",
-        "distance_km": 0.37,
-        "url": "https://www.navily.com/mouillage/poros-south-quay/33642"
-      },
-      {
-        "id": 9082,
-        "kind": "anchorage",
-        "name": "Nisos Poros",
-        "distance_km": 0.02,
-        "url": "https://www.navily.com/mouillage/nisos-poros/9082"
-      }
-    ]
+    "id": "h03"
   },
   {
     "lat": 37.63763,
@@ -7373,33 +7365,7 @@ function App() {
         "trip_id": "activity_18991370010"
       }
     ],
-    "id": "h04",
-    "osm": {
-      "display_name": "\u03a4\u03c3\u03bf\u03bb\u03ad\u03ca\u03ba\u03b1, \u03a0\u03b1\u03bd\u03cc\u03c1\u03b1\u03bc\u03b1, \u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03c7\u03b1\u03af\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0394\u03c5\u03c4\u03b9\u03ba\u03ae\u03c2 \u0395\u03bb\u03bb\u03ac\u03b4\u03b1\u03c2 \u03ba\u03b1\u03b9 \u0399\u03bf\u03bd\u03af\u03bf\u03c5, 210 59, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "neighbourhood": "\u03a4\u03c3\u03bf\u03bb\u03ad\u03ca\u03ba\u03b1",
-        "hamlet": "\u03a0\u03b1\u03bd\u03cc\u03c1\u03b1\u03bc\u03b1",
-        "city_district": "\u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03c7\u03b1\u03af\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-J",
-        "postcode": "210 59",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a4\u03c3\u03bf\u03bb\u03ad\u03ca\u03ba\u03b1"
-    },
-    "navily": [
-      {
-        "id": 30667,
-        "kind": "anchorage",
-        "name": "Sunken City of Epidaurus",
-        "distance_km": 0.91,
-        "url": "https://www.navily.com/mouillage/sunken-city-of-epidaurus/30667"
-      }
-    ]
+    "id": "h04"
   },
   {
     "lat": 37.67937,
@@ -7414,24 +7380,7 @@ function App() {
         "trip_id": "activity_15773569776"
       }
     ],
-    "id": "h05",
-    "osm": {
-      "display_name": "\u03a0\u03b1\u03c1\u03b1\u03bb\u03af\u03b1 \u039d\u03ad\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ad\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0394\u03c5\u03c4\u03b9\u03ba\u03ae\u03c2 \u0395\u03bb\u03bb\u03ac\u03b4\u03b1\u03c2 \u03ba\u03b1\u03b9 \u0399\u03bf\u03bd\u03af\u03bf\u03c5, 210 59, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "neighbourhood": "\u03a0\u03b1\u03c1\u03b1\u03bb\u03af\u03b1 \u039d\u03ad\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "city_district": "\u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ad\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-J",
-        "postcode": "210 59",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03b1\u03c1\u03b1\u03bb\u03af\u03b1 \u039d\u03ad\u03b1\u03c2 \u0395\u03c0\u03b9\u03b4\u03b1\u03cd\u03c1\u03bf\u03c5"
-    },
-    "navily": []
+    "id": "h05"
   },
   {
     "lat": 37.80628,
@@ -7464,19 +7413,7 @@ function App() {
         "trip_id": "activity_15785552217"
       }
     ],
-    "id": "h06",
-    "osm": {
-      "display_name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd"
-    },
-    "navily": []
+    "id": "h06"
   },
   {
     "lat": 37.74571,
@@ -7491,45 +7428,7 @@ function App() {
         "trip_id": "activity_17391775177"
       }
     ],
-    "id": "h07",
-    "osm": {
-      "display_name": "\u039a\u03ac\u03b2\u03bf\u03c2, \u0391\u03b3\u03af\u03b1 \u039c\u03b1\u03c1\u03af\u03bd\u03b1, \u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 180 10, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u039a\u03ac\u03b2\u03bf\u03c2",
-        "village": "\u0391\u03b3\u03af\u03b1 \u039c\u03b1\u03c1\u03af\u03bd\u03b1",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "180 10",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u039a\u03ac\u03b2\u03bf\u03c2"
-    },
-    "navily": [
-      {
-        "id": 2741,
-        "kind": "marina",
-        "name": "Agia Marina",
-        "distance_km": 0.83,
-        "url": "https://www.navily.com/port/agia-marina/2741"
-      },
-      {
-        "id": 30797,
-        "kind": "anchorage",
-        "name": "Agia Marina North",
-        "distance_km": 0.34,
-        "url": "https://www.navily.com/mouillage/ormos-aigina-marina/30797"
-      },
-      {
-        "id": 18215,
-        "kind": "anchorage",
-        "name": "Agia Marina South",
-        "distance_km": 1.01,
-        "url": "https://www.navily.com/mouillage/agia-marina-south/18215"
-      }
-    ]
+    "id": "h07"
   },
   {
     "lat": 37.69539,
@@ -7544,30 +7443,7 @@ function App() {
         "trip_id": "activity_17391775177"
       }
     ],
-    "id": "h08",
-    "osm": {
-      "display_name": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1, \u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 180 10, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "village": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03af\u03b3\u03b9\u03bd\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "180 10",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03ad\u03c1\u03b4\u03b9\u03ba\u03b1"
-    },
-    "navily": [
-      {
-        "id": 14494,
-        "kind": "anchorage",
-        "name": "Perdika",
-        "distance_km": 1.94,
-        "url": "https://www.navily.com/mouillage/perdika/14494"
-      }
-    ]
+    "id": "h08"
   },
   {
     "lat": 37.91305,
@@ -7600,23 +7476,7 @@ function App() {
         "trip_id": "activity_17430777281"
       }
     ],
-    "id": "h09",
-    "osm": {
-      "display_name": "\u039a\u03b1\u03bb\u03b1\u03bc\u03ac\u03ba\u03b9, \u0386\u03bb\u03b9\u03bc\u03bf\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03bb\u03af\u03bc\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u03a4\u03bf\u03bc\u03ad\u03b1 \u0391\u03b8\u03b7\u03bd\u03ce\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 174 55, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "quarter": "\u039a\u03b1\u03bb\u03b1\u03bc\u03ac\u03ba\u03b9",
-        "suburb": "\u0386\u03bb\u03b9\u03bc\u03bf\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03bb\u03af\u03bc\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u03a4\u03bf\u03bc\u03ad\u03b1 \u0391\u03b8\u03b7\u03bd\u03ce\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "174 55",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u039a\u03b1\u03bb\u03b1\u03bc\u03ac\u03ba\u03b9"
-    },
-    "navily": []
+    "id": "h09"
   },
   {
     "lat": 37.68614,
@@ -7641,22 +7501,7 @@ function App() {
         "trip_id": "activity_17397962270"
       }
     ],
-    "id": "h10",
-    "osm": {
-      "display_name": "\u039b\u03b9\u03bc\u03b5\u03bd\u03ac\u03c1\u03b9\u03b1, \u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03b3\u03ba\u03b9\u03c3\u03c4\u03c1\u03af\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 180 10, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u039b\u03b9\u03bc\u03b5\u03bd\u03ac\u03c1\u03b9\u03b1",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0391\u03b3\u03ba\u03b9\u03c3\u03c4\u03c1\u03af\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "180 10",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u039b\u03b9\u03bc\u03b5\u03bd\u03ac\u03c1\u03b9\u03b1"
-    },
-    "navily": []
+    "id": "h10"
   },
   {
     "lat": 37.38491,
@@ -7699,31 +7544,7 @@ function App() {
         "trip_id": "activity_18971786100"
       }
     ],
-    "id": "h11",
-    "osm": {
-      "display_name": "\u0386\u03b3\u03b9\u03bf\u03b9 \u0391\u03bd\u03ac\u03c1\u03b3\u03c5\u03c1\u03bf\u03b9, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0394\u03c5\u03c4\u03b9\u03ba\u03ae\u03c2 \u0395\u03bb\u03bb\u03ac\u03b4\u03b1\u03c2 \u03ba\u03b1\u03b9 \u0399\u03bf\u03bd\u03af\u03bf\u03c5, 210 51, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "village": "\u0386\u03b3\u03b9\u03bf\u03b9 \u0391\u03bd\u03ac\u03c1\u03b3\u03c5\u03c1\u03bf\u03b9",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-J",
-        "postcode": "210 51",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u0386\u03b3\u03b9\u03bf\u03b9 \u0391\u03bd\u03ac\u03c1\u03b3\u03c5\u03c1\u03bf\u03b9"
-    },
-    "navily": [
-      {
-        "id": 16197,
-        "kind": "anchorage",
-        "name": "Ermioni South dock",
-        "distance_km": 0.15,
-        "url": "https://www.navily.com/mouillage/ermioni-south-dock/16197"
-      }
-    ]
+    "id": "h11"
   },
   {
     "lat": 37.34461,
@@ -7754,23 +7575,7 @@ function App() {
         "trip_id": "activity_18971786100"
       }
     ],
-    "id": "h12",
-    "osm": {
-      "display_name": "\u03a0\u03b5\u03c4\u03c1\u03bf\u03b8\u03ac\u03bb\u03b1\u03c3\u03c3\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0394\u03c5\u03c4\u03b9\u03ba\u03ae\u03c2 \u0395\u03bb\u03bb\u03ac\u03b4\u03b1\u03c2 \u03ba\u03b1\u03b9 \u0399\u03bf\u03bd\u03af\u03bf\u03c5, 210 51, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "village": "\u03a0\u03b5\u03c4\u03c1\u03bf\u03b8\u03ac\u03bb\u03b1\u03c3\u03c3\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-J",
-        "postcode": "210 51",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03b5\u03c4\u03c1\u03bf\u03b8\u03ac\u03bb\u03b1\u03c3\u03c3\u03b1 \u0395\u03c1\u03bc\u03b9\u03cc\u03bd\u03b7\u03c2"
-    },
-    "navily": []
+    "id": "h12"
   },
   {
     "lat": 37.32572,
@@ -7813,43 +7618,11 @@ function App() {
         "trip_id": "activity_18980734261"
       }
     ],
-    "id": "h13",
-    "osm": {
-      "display_name": "\u0392\u03b5\u03c1\u03b2\u03b5\u03c1\u03bf\u03cd\u03b4\u03b1, \u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a0\u03bf\u03c1\u03c4\u03bf\u03c7\u03b5\u03bb\u03af\u03bf\u03c5, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03c1\u03b1\u03bd\u03b9\u03b4\u03af\u03bf\u03c5, \u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5, \u0394\u03c5\u03c4\u03b9\u03ba\u03ae\u03c2 \u0395\u03bb\u03bb\u03ac\u03b4\u03b1\u03c2 \u03ba\u03b1\u03b9 \u0399\u03bf\u03bd\u03af\u03bf\u03c5, 213 00, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u0392\u03b5\u03c1\u03b2\u03b5\u03c1\u03bf\u03cd\u03b4\u03b1",
-        "city_district": "\u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a0\u03bf\u03c1\u03c4\u03bf\u03c7\u03b5\u03bb\u03af\u03bf\u03c5",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03c1\u03b1\u03bd\u03b9\u03b4\u03af\u03bf\u03c5",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0395\u03c1\u03bc\u03b9\u03bf\u03bd\u03af\u03b4\u03b1\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03c1\u03b3\u03bf\u03bb\u03af\u03b4\u03bf\u03c2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u03a0\u03b5\u03bb\u03bf\u03c0\u03bf\u03bd\u03bd\u03ae\u03c3\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-J",
-        "postcode": "213 00",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u0392\u03b5\u03c1\u03b2\u03b5\u03c1\u03bf\u03cd\u03b4\u03b1"
-    },
-    "navily": [
-      {
-        "id": 33254,
-        "kind": "anchorage",
-        "name": "Porto Cheli",
-        "distance_km": 0.3,
-        "url": "https://www.navily.com/mouillage/porto-cheli/33254"
-      },
-      {
-        "id": 8163,
-        "kind": "marina",
-        "name": "Porto Heli",
-        "distance_km": 0.28,
-        "url": "https://www.navily.com/port/porto-heli/8163"
-      }
-    ]
+    "id": "h13"
   },
   {
-    "lat": 37.71198,
-    "lon": 24.05638,
+    "lat": 37.71191,
+    "lon": 24.05658,
     "visits": [
       {
         "lat": 37.7122014015913,
@@ -7877,35 +7650,18 @@ function App() {
         "duration_min": 0,
         "kind": "start",
         "trip_id": "activity_20848413891"
+      },
+      {
+        "lat": 37.7117,
+        "lon": 24.05719,
+        "start": "2025-10-31T10:30:02.000Z",
+        "end": "2025-10-31T10:30:02.000Z",
+        "duration_min": 0,
+        "kind": "end",
+        "trip_id": "activity_20848429080"
       }
     ],
-    "id": "h14",
-    "osm": {
-      "display_name": "\u039d\u03c5\u03c7\u03c4\u03bf\u03c7\u03ce\u03c1\u03b9, \u039b\u03b1\u03cd\u03c1\u03b9\u03bf, \u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039b\u03b1\u03c5\u03c1\u03b5\u03c9\u03c4\u03b9\u03ba\u03ae\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u039b\u03b1\u03c5\u03c1\u03b5\u03c9\u03c4\u03b9\u03ba\u03ae\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03bd\u03b1\u03c4\u03bf\u03bb\u03b9\u03ba\u03ae\u03c2 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, 195 00, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "quarter": "\u039d\u03c5\u03c7\u03c4\u03bf\u03c7\u03ce\u03c1\u03b9",
-        "town": "\u039b\u03b1\u03cd\u03c1\u03b9\u03bf",
-        "city": "\u0394\u03b7\u03bc\u03bf\u03c4\u03b9\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039b\u03b1\u03c5\u03c1\u03b5\u03c9\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u039b\u03b1\u03c5\u03c1\u03b5\u03c9\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0391\u03bd\u03b1\u03c4\u03bf\u03bb\u03b9\u03ba\u03ae\u03c2 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl6": "GR-A2",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "postcode": "195 00",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u039d\u03c5\u03c7\u03c4\u03bf\u03c7\u03ce\u03c1\u03b9"
-    },
-    "navily": [
-      {
-        "id": 1512,
-        "kind": "marina",
-        "name": "Olympic Marine",
-        "distance_km": 1.86,
-        "url": "https://www.navily.com/port/olympic-marine/1512"
-      }
-    ]
+    "id": "h14"
   },
   {
     "lat": 37.63739,
@@ -7921,19 +7677,7 @@ function App() {
         "trip_id": "activity_19018239911"
       }
     ],
-    "id": "h15",
-    "osm": {
-      "display_name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u0391\u03c4\u03c4\u03b9\u03ba\u03ae\u03c2",
-        "ISO3166-2-lvl5": "GR-I",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039d\u03ae\u03c3\u03c9\u03bd"
-    },
-    "navily": []
+    "id": "h15"
   },
   {
     "lat": 37.44237,
@@ -7966,24 +7710,7 @@ function App() {
         "trip_id": "activity_20848418807"
       }
     ],
-    "id": "h16",
-    "osm": {
-      "display_name": "Kavourocheri, \u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03cd\u03b8\u03bd\u03bf\u03c5, \u039b\u03bf\u03c5\u03c4\u03c1\u03ac, \u0394\u03ae\u03bc\u03bf\u03c2 \u039a\u03cd\u03b8\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03ad\u03b1\u03c2 - \u039a\u03cd\u03b8\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, 840 06, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "isolated_dwelling": "Kavourocheri",
-        "city_district": "\u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03cd\u03b8\u03bd\u03bf\u03c5",
-        "village": "\u039b\u03bf\u03c5\u03c4\u03c1\u03ac",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u039a\u03cd\u03b8\u03bd\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03ad\u03b1\u03c2 - \u039a\u03cd\u03b8\u03bd\u03bf\u03c5",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-L",
-        "postcode": "840 06",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "Kavourocheri"
-    },
-    "navily": []
+    "id": "h16"
   },
   {
     "lat": 37.46465,
@@ -8008,24 +7735,7 @@ function App() {
         "trip_id": "activity_20848421198"
       }
     ],
-    "id": "h17",
-    "osm": {
-      "display_name": "\u03a4\u03b1\u03b3\u03ba\u03bf\u03cd, \u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039c\u03c5\u03ba\u03bf\u03bd\u03af\u03c9\u03bd, \u039c\u03cd\u03ba\u03bf\u03bd\u03bf\u03c2, \u0394\u03ae\u03bc\u03bf\u03c2 \u039c\u03c5\u03ba\u03cc\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039c\u03c5\u03ba\u03cc\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, 846 00, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "neighbourhood": "\u03a4\u03b1\u03b3\u03ba\u03bf\u03cd",
-        "city_district": "\u039a\u03bf\u03b9\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039c\u03c5\u03ba\u03bf\u03bd\u03af\u03c9\u03bd",
-        "town": "\u039c\u03cd\u03ba\u03bf\u03bd\u03bf\u03c2",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u039c\u03c5\u03ba\u03cc\u03bd\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039c\u03c5\u03ba\u03cc\u03bd\u03bf\u03c5",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-L",
-        "postcode": "846 00",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a4\u03b1\u03b3\u03ba\u03bf\u03cd"
-    },
-    "navily": []
+    "id": "h17"
   },
   {
     "lat": 37.65288,
@@ -8050,31 +7760,7 @@ function App() {
         "trip_id": "activity_20848423002"
       }
     ],
-    "id": "h18",
-    "osm": {
-      "display_name": "\u03a1\u03cc\u03c7\u03b1\u03c1\u03b7\u03c2, \u038c\u03c1\u03bc\u03bf\u03c2 \u03a0\u03b1\u03bd\u03cc\u03c1\u03bc\u03bf\u03c5, \u0394\u03ae\u03bc\u03bf\u03c2 \u03a4\u03ae\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a4\u03ae\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, 842 01, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u03a1\u03cc\u03c7\u03b1\u03c1\u03b7\u03c2",
-        "village": "\u038c\u03c1\u03bc\u03bf\u03c2 \u03a0\u03b1\u03bd\u03cc\u03c1\u03bc\u03bf\u03c5",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u03a4\u03ae\u03bd\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u03a4\u03ae\u03bd\u03bf\u03c5",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-L",
-        "postcode": "842 01",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a1\u03cc\u03c7\u03b1\u03c1\u03b7\u03c2"
-    },
-    "navily": [
-      {
-        "id": 1499,
-        "kind": "marina",
-        "name": "Panormos Tinos Quay",
-        "distance_km": 0.17,
-        "url": "https://www.navily.com/port/tinos-marina/1499"
-      }
-    ]
+    "id": "h18"
   },
   {
     "lat": 37.85636,
@@ -8099,66 +7785,7 @@ function App() {
         "trip_id": "activity_20848429080"
       }
     ],
-    "id": "h19",
-    "osm": {
-      "display_name": "\u0394\u03b1\u03bc\u03b1\u03c3\u03ba\u03b7\u03bd\u03cc\u03c2, \u039c\u03c0\u03b1\u03c4\u03c3\u03af, \u0394\u03ae\u03bc\u03bf\u03c2 \u0386\u03bd\u03b4\u03c1\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0386\u03bd\u03b4\u03c1\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, 845 01, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "hamlet": "\u0394\u03b1\u03bc\u03b1\u03c3\u03ba\u03b7\u03bd\u03cc\u03c2",
-        "village": "\u039c\u03c0\u03b1\u03c4\u03c3\u03af",
-        "municipality": "\u0394\u03ae\u03bc\u03bf\u03c2 \u0386\u03bd\u03b4\u03c1\u03bf\u03c5",
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u0386\u03bd\u03b4\u03c1\u03bf\u03c5",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-L",
-        "postcode": "845 01",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u0394\u03b1\u03bc\u03b1\u03c3\u03ba\u03b7\u03bd\u03cc\u03c2"
-    },
-    "navily": [
-      {
-        "id": 1498,
-        "kind": "marina",
-        "name": "Batsi marina",
-        "distance_km": 0.11,
-        "url": "https://www.navily.com/port/batsi-marina/1498"
-      },
-      {
-        "id": 42400,
-        "kind": "anchorage",
-        "name": "Batsi beach",
-        "distance_km": 0.23,
-        "url": "https://www.navily.com/mouillage/batsi-beach/42400"
-      }
-    ]
-  },
-  {
-    "lat": 37.7613,
-    "lon": 24.14223,
-    "visits": [
-      {
-        "lat": 37.76130066253245,
-        "lon": 24.14223276078701,
-        "start": "2025-10-31T09:10:32.000Z",
-        "end": "2025-10-31T09:10:32.000Z",
-        "duration_min": 0,
-        "kind": "end",
-        "trip_id": "activity_20848429080"
-      }
-    ],
-    "id": "h20",
-    "osm": {
-      "display_name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03ad\u03b1\u03c2 - \u039a\u03cd\u03b8\u03bd\u03bf\u03c5, \u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03b7 \u0394\u03b9\u03bf\u03af\u03ba\u03b7\u03c3\u03b7 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5, \u0395\u03bb\u03bb\u03ac\u03c2",
-      "address": {
-        "county": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03ad\u03b1\u03c2 - \u039a\u03cd\u03b8\u03bd\u03bf\u03c5",
-        "state": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03ad\u03c1\u03b5\u03b9\u03b1 \u039d\u03bf\u03c4\u03af\u03bf\u03c5 \u0391\u03b9\u03b3\u03b1\u03af\u03bf\u03c5",
-        "ISO3166-2-lvl5": "GR-L",
-        "country": "\u0395\u03bb\u03bb\u03ac\u03c2",
-        "country_code": "gr"
-      },
-      "name": "\u03a0\u03b5\u03c1\u03b9\u03c6\u03b5\u03c1\u03b5\u03b9\u03b1\u03ba\u03ae \u0395\u03bd\u03cc\u03c4\u03b7\u03c4\u03b1 \u039a\u03ad\u03b1\u03c2 - \u039a\u03cd\u03b8\u03bd\u03bf\u03c5"
-    },
-    "navily": []
+    "id": "h19"
   }
 ],
       {
@@ -9368,39 +8995,24 @@ function App() {
   // Init map once trips load
   useEffect(() => {
     if (!trips.length || mapRef.current) return;
-    const map = L.map('map', {
-      zoomControl: true,
-      attributionControl: true,
-    }).setView([37.7, 23.7], 9);
+    const map = L.map('map', {zoomControl: true, attributionControl: true}).setView([37.7, 23.7], 9);
     mapRef.current = map;
 
-    tileLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
+    tileLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CartoDB',
       subdomains: 'abcd',
       maxZoom: 19,
     }).addTo(map);
 
-    // OpenSeaMap nautical overlay (buoys, lights, harbors) — essential for sailing voyages
-    L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
-      attribution: '© OpenSeaMap',
-      maxZoom: 18,
-      opacity: 0.85,
-    }).addTo(map);
-
-    // Fit bounds to all tracks
     const all = [];
     trips.forEach(t => t.track.forEach(p => all.push(p)));
-    if (all.length) {
-      map.fitBounds(L.latLngBounds(all), {padding: [40, 40]});
-    }
+    if (all.length) map.fitBounds(L.latLngBounds(all), {padding: [40, 40]});
   }, [trips]);
 
-  // Render track polylines
+  // Track polylines
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !voyages.length) return;
-
-    // Remove existing
     Object.values(trackLayersRef.current).forEach(l => map.removeLayer(l));
     trackLayersRef.current = {};
 
@@ -9408,26 +9020,25 @@ function App() {
       v.trips.forEach(t => {
         const poly = L.polyline(t.track, {
           color: v.color,
-          weight: selTrip === t.id ? 6 : 4,
-          opacity: selVoyage && selVoyage !== v.id ? 0.25 : (selTrip && selTrip !== t.id ? 0.5 : 1),
+          weight: selTrip === t.id ? 4 : 2.5,
+          opacity: selVoyage && selVoyage !== v.id ? 0.2 : (selTrip && selTrip !== t.id ? 0.4 : 0.85),
         });
         poly.on('click', () => {
           setSelTrip(t.id);
           setSelVoyage(v.id);
           setSelHarbor(null);
         });
-        poly.bindTooltip(`<b>${t.name}</b><br>${t.date} · ${distOf(t).toFixed(1)} ${distUnit}`, {sticky: true, className: 'trk-tip'});
+        poly.bindTooltip(`<b>${t.name}</b><br>${t.date} · ${t.distance_nm.toFixed(1)} nm`, {sticky: true});
         poly.addTo(map);
         trackLayersRef.current[t.id] = poly;
       });
     });
   }, [voyages, selTrip, selVoyage]);
 
-  // Render harbor markers
+  // Harbor markers
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !harbors.length) return;
-
     Object.values(harborMarkersRef.current).forEach(m => map.removeLayer(m));
     harborMarkersRef.current = {};
 
@@ -9444,7 +9055,8 @@ function App() {
         iconAnchor: [size / 2, size / 2],
       });
       const marker = L.marker([h.lat, h.lon], {icon: ico});
-      marker.bindTooltip(`<b>${harborName(h)}</b><br>${h.visits.length} visits`, {direction: 'top'});
+      const lbl = harborLabel(h);
+      marker.bindTooltip(`<b>${lbl.name}${lbl.approx ? ' (approx.)' : ''}</b><br>${h.visits.length} visits`, {direction: 'top'});
       marker.on('click', () => {
         setSelHarbor(h.id);
         setSelTrip(null);
@@ -9454,7 +9066,7 @@ function App() {
     });
   }, [harbors, selHarbor, navily]);
 
-  // Pan to selected harbor
+  // Pan to selected harbour
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !selHarbor) return;
@@ -9462,21 +9074,28 @@ function App() {
     if (h) map.flyTo([h.lat, h.lon], Math.max(map.getZoom(), 12), {duration: 0.6});
   }, [selHarbor, harbors]);
 
-  // Pan to selected trip
+  // Fit to selected trip / voyage
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selTrip) return;
-    const t = trips.find(x => x.id === selTrip);
-    if (t && t.track.length) {
-      map.fitBounds(L.latLngBounds(t.track), {padding: [50, 50]});
+    if (!map) return;
+    if (selTrip) {
+      const t = trips.find(x => x.id === selTrip);
+      if (t && t.track.length) map.fitBounds(L.latLngBounds(t.track), {padding: [50, 50]});
+    } else if (selVoyage) {
+      const v = voyages.find(x => x.id === selVoyage);
+      if (v) {
+        const pts = [];
+        v.trips.forEach(t => t.track.forEach(p => pts.push(p)));
+        if (pts.length) map.fitBounds(L.latLngBounds(pts), {padding: [50, 50]});
+      }
     }
-  }, [selTrip, trips]);
+  }, [selTrip, selVoyage, trips, voyages]);
 
   const stats = useMemo(() => {
-    const totalDist = trips.reduce((s, t) => s + distOf(t), 0);
-    const totalDays = trips.length;
+    const totalNm = trips.reduce((s, t) => s + t.distance_nm, 0);
+    const sailingDays = new Set(trips.map(t => t.date)).size;
     const uniqueHarbors = harbors.filter(h => h.visits.some(v => (v.duration_min || 0) >= 30 || !v.kind)).length;
-    return {dist: totalDist, days: totalDays, harbors: uniqueHarbors, voyages: voyages.length};
+    return {nm: totalNm, days: sailingDays, harbors: uniqueHarbors, voyages: voyages.length};
   }, [trips, harbors, voyages]);
 
   const harborsSorted = useMemo(() => {
@@ -9491,96 +9110,116 @@ function App() {
 
       <aside className={'sb' + (sbOpen ? ' on' : '')}>
         <div className="sb-hdr">
-          <h1>{APP_CONFIG.emoji} {APP_CONFIG.title}</h1>
-          <div className="sub">{APP_CONFIG.subtitle}</div>
+          <h1>⛵ Saronic Gulf Sailing Log</h1>
+          <div className="sub">Routes we've sailed · 2024 onwards</div>
         </div>
 
         <div className="sb-stats">
-          <div className="s"><div className="n">{stats.voyages}</div><div className="l">{APP_CONFIG.labels.voyages}</div></div>
-          <div className="s"><div className="n">{stats.days}</div><div className="l">Days</div></div>
-          <div className="s"><div className="n">{stats.dist.toFixed(0)}</div><div className="l">{APP_CONFIG.labels.distUnit}</div></div>
-          <div className="s"><div className="n">{stats.harbors}</div><div className="l">{APP_CONFIG.labels.stops}</div></div>
+          <div className="s"><div className="n">{stats.voyages}</div><div className="l">Voyages</div></div>
+          <div className="s"><div className="n">{stats.days}</div><div className="l">Sailing days</div></div>
+          <div className="s"><div className="n">{stats.nm.toFixed(0)}</div><div className="l">Nautical mi</div></div>
+          <div className="s"><div className="n">{stats.harbors}</div><div className="l">Harbours</div></div>
         </div>
 
         <div className="sb-tabs">
-          <button className={'sb-tab' + (sbTab === 'voyages' ? ' on' : '')} onClick={() => setSbTab('voyages')}>{APP_CONFIG.labels.voyages}</button>
-          <button className={'sb-tab' + (sbTab === 'harbors' ? ' on' : '')} onClick={() => setSbTab('harbors')}>{APP_CONFIG.labels.stops}</button>
+          <button className={'sb-tab' + (sbTab === 'voyages' ? ' on' : '')} onClick={() => setSbTab('voyages')}>Voyages</button>
+          <button className={'sb-tab' + (sbTab === 'harbors' ? ' on' : '')} onClick={() => setSbTab('harbors')}>Harbours</button>
         </div>
 
         <div className="sb-body">
-          {loadErr && <div style={{padding:'1rem',color:'#fca5a5',fontSize:'.8rem'}}>Load error: {loadErr}</div>}
+          {loadErr && <div style={{padding:'1rem',color:'#fca5a5',fontSize:'.8rem'}}>Couldn't load route data: {loadErr}</div>}
+          {!loadErr && trips.length === 0 && <div className="empty" style={{padding:'1rem'}}>Loading routes…</div>}
 
           {sbTab === 'voyages' && voyages.map(v => (
             <div key={v.id} className="vg">
-              <div className="vg-hdr" onClick={() => { setSelVoyage(selVoyage === v.id ? null : v.id); setSelTrip(null); setSelHarbor(null); }}>
+              <div className={'vg-hdr' + (selVoyage === v.id ? ' on' : '')} onClick={() => {
+                const next = selVoyage === v.id ? null : v.id;
+                setSelVoyage(next);
+                setSelTrip(null);
+                setSelHarbor(null);
+              }}>
                 <div>
                   <div className="vg-name"><span className="vg-dot" style={{background: v.color}}></span>{v.name}</div>
-                  <div className="vg-meta">{v.days} days · {v.dist.toFixed(1)} {distUnit} · {v.season}</div>
+                  <div className="vg-meta">{v.sailingDays} sailing day{v.sailingDays !== 1 ? 's' : ''} · {v.nm.toFixed(0)} nm · {v.season}</div>
                 </div>
               </div>
               {v.trips.map(t => (
-                <div key={t.id} className={'tr' + (selTrip === t.id ? ' on' : '')} onClick={() => { setSelTrip(t.id); setSelVoyage(v.id); setSelHarbor(null); }}>
-                  <div className="tr-nm"><span className="d">{t.date.slice(5)}</span>{t.name.replace(/ Sailing$/,'')}</div>
-                  <div className="tr-dist">{distOf(t).toFixed(1)} {distUnit}</div>
+                <div key={t.id} className={'tr' + (selTrip === t.id ? ' on' : '')} onClick={() => {
+                  setSelTrip(t.id);
+                  setSelVoyage(v.id);
+                  setSelHarbor(null);
+                }}>
+                  <div className="tr-nm" title={t.name}>
+                    <span className="d">{t.date.slice(5)}</span>{t.name.replace(/ Sailing$/,'')}
+                  </div>
+                  <div className="tr-dist">{t.distance_nm.toFixed(1)} nm</div>
                 </div>
               ))}
             </div>
           ))}
 
           {sbTab === 'harbors' && (
-            <div style={{padding:'.5rem'}}>
-              {harborsSorted.map(h => {
-                const realVisits = h.visits.filter(v => (v.duration_min || 0) >= 30 || !v.kind);
-                const visitCount = Math.max(realVisits.length, h.visits.filter(v => !v.kind).length || h.visits.length);
-                const nv = (h.navily || [])[0];
-                return (
-                  <div key={h.id} className={'hr' + (selHarbor === h.id ? ' on' : '')} onClick={() => setSelHarbor(h.id)}>
-                    <div>
-                      <div className="hr-nm">{harborName(h)}</div>
-                      <div className="hr-sub">{harborArea(h)}{nv && ` · ★ ${navily[nv.id]?.rating?.toFixed(1) || '?'}`}</div>
+            <>
+              <div className="disclaimer">
+                Harbour names are auto-resolved from coordinates via OpenStreetMap; treat as approximate.
+                Tap a harbour to see when we visited and (where available) community notes.
+              </div>
+              <div style={{padding:'.5rem'}}>
+                {harborsSorted.map(h => {
+                  const lbl = harborLabel(h);
+                  const realVisits = h.visits.filter(v => (v.duration_min || 0) >= 30 || !v.kind);
+                  const visitCount = Math.max(realVisits.length, h.visits.length);
+                  const nv = (h.navily || [])[0];
+                  const rating = nv && navily[nv.id] && navily[nv.id].rating;
+                  return (
+                    <div key={h.id} className={'hr' + (selHarbor === h.id ? ' on' : '')} onClick={() => setSelHarbor(h.id)}>
+                      <div style={{minWidth:0}}>
+                        <div className="hr-nm">
+                          {lbl.name}
+                          {lbl.approx && <span className="hr-approx" title="Auto-geocoded — name approximate">approx.</span>}
+                        </div>
+                        <div className="hr-sub">{harborArea(h)}{rating ? ` · ★ ${rating.toFixed(1)}` : ''}</div>
+                      </div>
+                      <div className="hr-v">{visitCount}×</div>
                     </div>
-                    <div className="hr-v">{h.visits.length}×</div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </>
           )}
+        </div>
+
+        <div className="sb-foot">
+          Tracks: {trips.length} GPX file{trips.length !== 1 ? 's' : ''} · Times in UTC.
         </div>
       </aside>
 
       <div className="map-wrap">
         <div id="map"></div>
         <div className="legend">
-          <h4>{APP_CONFIG.labels.voyages}</h4>
+          <h4>Voyages</h4>
           {voyages.map(v => (
-            <div key={v.id} className="legend-row">
+            <div key={v.id} className={'legend-row' + (selVoyage === v.id ? ' on' : '')}
+                 onClick={() => { setSelVoyage(selVoyage === v.id ? null : v.id); setSelTrip(null); setSelHarbor(null); }}>
               <span className="sw" style={{background: v.color}}></span>
               <span>{v.name}</span>
             </div>
           ))}
-          <div className="legend-row" style={{marginTop:'.4rem',paddingTop:'.4rem',borderTop:'1px solid #334155'}}>
-            <span className="cdot" style={{background:'#fcd34d',boxShadow:'0 0 0 2px rgba(252,211,77,.5)'}}></span>
-            <span>Frequent {APP_CONFIG.labels.stop}</span>
-          </div>
-          <div className="legend-row">
-            <span className="cdot" style={{background:'#38bdf8',boxShadow:'0 0 0 2px rgba(56,189,248,.4)'}}></span>
-            <span>{APP_CONFIG.labels.stopCap} visited</span>
+          <div style={{marginTop:'.4rem',paddingTop:'.4rem',borderTop:'1px solid #334155'}}>
+            <div className="legend-row">
+              <span className="cdot" style={{background:'#fcd34d',boxShadow:'0 0 0 2px rgba(252,211,77,.5)'}}></span>
+              <span>Frequent harbour</span>
+            </div>
+            <div className="legend-row">
+              <span className="cdot" style={{background:'#38bdf8',boxShadow:'0 0 0 2px rgba(56,189,248,.4)'}}></span>
+              <span>Harbour visited</span>
+            </div>
           </div>
         </div>
 
         {selectedH && (
           <aside className="dp on">
-            <div className="dp-hdr">
-              <div>
-                <h2>{harborName(selectedH)}</h2>
-                <div className="addr">{harborArea(selectedH)}</div>
-                <div className="addr" style={{marginTop:'.2rem'}}>{selectedH.lat.toFixed(4)}°N, {selectedH.lon.toFixed(4)}°E</div>
-              </div>
-              <button className="dp-close" onClick={() => setSelHarbor(null)}>×</button>
-            </div>
-            <div className="dp-body">
-              <HarborDetail harbor={selectedH} navily={navily} trips={trips} voyages={voyages} />
-            </div>
+            <HarborPanel harbor={selectedH} navily={navily} trips={trips} voyages={voyages} onClose={() => setSelHarbor(null)} />
           </aside>
         )}
       </div>
@@ -9588,18 +9227,16 @@ function App() {
   );
 }
 
-function HarborDetail({harbor, navily, trips, voyages}) {
+function HarborPanel({harbor, navily, trips, voyages, onClose}) {
+  const lbl = harborLabel(harbor);
   const nvLinks = harbor.navily || [];
-  const primary = nvLinks.length ? navily[nvLinks[0].id] : null;
-  // Pick best anchor by rating if multiple
   const bestAnchor = nvLinks
     .map(l => ({link: l, data: navily[l.id]}))
     .filter(x => x.data)
     .sort((a, b) => (b.data.rating || 0) - (a.data.rating || 0))[0];
-  const display = bestAnchor ? bestAnchor.data : primary;
+  const display = bestAnchor ? bestAnchor.data : (nvLinks.length ? navily[nvLinks[0].id] : null);
   const displayLink = bestAnchor ? bestAnchor.link : nvLinks[0];
 
-  // Real visits (duration > 30min or non-transit)
   const visits = harbor.visits.filter(v => (v.duration_min || 0) >= 30 || v.kind);
   visits.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
@@ -9608,109 +9245,125 @@ function HarborDetail({harbor, navily, trips, voyages}) {
 
   return (
     <>
-      <section className="dp-section">
-        <h3>Visits ({visits.length})</h3>
-        {visits.length === 0 && <div className="empty">Transit waypoint — no stopover.</div>}
-        {visits.map((v, i) => {
-          const t = tripById[v.trip_id];
-          const voy = voyageOf(v.trip_id);
-          const dateStr = (v.start || '').slice(0, 10);
-          const timeStr = (v.start || '').slice(11, 16);
-          return (
-            <div key={i} className="visit">
-              <div className="vd">
-                {voy && <span className="vg-dot" style={{display:'inline-block',background:voy.color,width:8,height:8,borderRadius:'50%',marginRight:6,verticalAlign:'middle'}}></span>}
-                {dateStr} {timeStr && `· ${timeStr}`}
-              </div>
-              <div className="vm">
-                {v.kind === 'start' && 'Departure'}
-                {v.kind === 'end' && 'Arrival'}
-                {!v.kind && v.duration_min > 0 && `Stopped ${formatDuration(v.duration_min)}`}
-                {t && ` · ${t.name.replace(/ Sailing$/,'')}`}
-              </div>
-            </div>
-          );
-        })}
-      </section>
-
-      {display && (
+      <div className="dp-hdr">
+        <div style={{minWidth:0}}>
+          <h2>
+            {lbl.name}
+            {lbl.approx && <span className="approx" title="Auto-geocoded — name approximate">approx.</span>}
+          </h2>
+          <div className="addr">{harborArea(harbor)}</div>
+          <div className="addr" style={{marginTop:'.2rem'}}>{harbor.lat.toFixed(4)}°N, {harbor.lon.toFixed(4)}°E</div>
+        </div>
+        <button className="dp-close" onClick={onClose}>×</button>
+      </div>
+      <div className="dp-body">
         <section className="dp-section">
-          <h3>Navily · {display.kind === 'marina' ? 'Marina' : 'Anchorage'}</h3>
-          {display.image && <img className="hero" src={display.image} alt={display.name} onError={e => e.target.style.display='none'}/>}
-          {typeof display.rating === 'number' && display.rating > 0 && (
-            <div className="rating">
-              <div className="n">{display.rating.toFixed(1)}</div>
-              <div className="s">{renderStars(display.rating)}</div>
-              <div className="c">({display.review_count || 0} reviews)</div>
-            </div>
-          )}
-          {display.rank && <div className="rank">Ranked <b>#{display.rank.position}</b> in {display.rank.area}</div>}
-          <div style={{fontSize:'.78rem',color:'#94a3b8',marginBottom:'.5rem'}}>{display.name}</div>
-
-          {display.seabed && display.seabed.length > 0 && (
-            <div style={{marginBottom:'.5rem'}}>
-              <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Seabed</div>
-              {display.seabed.map((s, i) => <span key={i} className="chip">{s}</span>)}
-            </div>
-          )}
-
-          {display.mooring && display.mooring.length > 0 && (
-            <div style={{marginBottom:'.5rem'}}>
-              <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Mooring</div>
-              {display.mooring.map((s, i) => <span key={i} className={'chip' + (s.includes('forbidden') ? ' warn' : ' ok')}>{s}</span>)}
-            </div>
-          )}
-
-          {display.services && display.services.length > 0 && (
-            <div style={{marginBottom:'.5rem'}}>
-              <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Services</div>
-              {display.services.map((s, i) => <span key={i} className="chip">{s}</span>)}
-            </div>
-          )}
-
-          {display.phone && (
-            <div style={{fontSize:'.78rem',color:'#cbd5e1',marginBottom:'.5rem'}}>📞 {display.phone}</div>
-          )}
-
-          <a className="nav-link" href={displayLink.url} target="_blank" rel="noopener">Open on Navily ↗</a>
-          {nvLinks.length > 1 && (
-            <div style={{marginTop:'.5rem',fontSize:'.72rem',color:'#64748b'}}>
-              <div style={{marginBottom:'.2rem'}}>Other nearby Navily spots:</div>
-              {nvLinks.filter(l => l.id !== displayLink.id).map(l => (
-                <a key={l.id} href={l.url} target="_blank" rel="noopener" style={{display:'block',color:'#93c5fd',textDecoration:'none',padding:'.15rem 0'}}>
-                  {l.name} ({l.kind}) · {l.distance_km} km
-                </a>
-              ))}
-            </div>
-          )}
-
-          {display.reviews && display.reviews.length > 0 && (
-            <div style={{marginTop:'.75rem'}}>
-              <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.4rem'}}>Recent reviews</div>
-              {display.reviews.slice(0, 4).map((r, i) => (
-                <div key={i} className="review">
-                  <div className="ra"><b>{r.author || 'Anonymous'}</b><span>{r.rating.toFixed(1)} ★ · {r.date}</span></div>
-                  {r.body && <div className="rb">{r.body.length > 300 ? r.body.slice(0, 300) + '…' : r.body}</div>}
+          <h3>Visits ({visits.length})</h3>
+          {visits.length === 0 && <div className="empty">Transit waypoint — no stopover.</div>}
+          {visits.map((v, i) => {
+            const t = tripById[v.trip_id];
+            const voy = voyageOf(v.trip_id);
+            const dateStr = (v.start || '').slice(0, 10);
+            const timeStr = (v.start || '').slice(11, 16);
+            return (
+              <div key={i} className="visit">
+                <div className="vd">
+                  {voy && <span className="vg-dot" style={{display:'inline-block',background:voy.color,width:8,height:8,borderRadius:'50%',marginRight:6,verticalAlign:'middle'}}></span>}
+                  {dateStr} {timeStr && `· ${timeStr}`}
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="vm">
+                  {v.kind === 'start' && 'Departure'}
+                  {v.kind === 'end' && 'Arrival'}
+                  {!v.kind && v.duration_min > 0 && `Stopped ${formatDuration(v.duration_min)}`}
+                  {t && ` · ${t.name.replace(/ Sailing$/,'')}`}
+                </div>
+              </div>
+            );
+          })}
         </section>
-      )}
 
-      {!display && (
+        {display && (
+          <section className="dp-section">
+            <h3>
+              {display.kind === 'marina' ? 'Marina' : 'Anchorage'} reference
+              <span className="h3-sub">community data, not safety guidance</span>
+            </h3>
+            {display.image && <img className="hero" src={display.image} alt={display.name} onError={e => e.target.style.display='none'}/>}
+            {typeof display.rating === 'number' && display.rating > 0 && (
+              <div className="rating">
+                <div className="n">{display.rating.toFixed(1)}</div>
+                <div className="s">{renderStars(display.rating)}</div>
+                <div className="c">({display.review_count || 0} reviews)</div>
+              </div>
+            )}
+            {display.rank && <div className="rank">Ranked <b>#{display.rank.position}</b> in {display.rank.area}</div>}
+            <div style={{fontSize:'.78rem',color:'#94a3b8',marginBottom:'.5rem'}}>{display.name}</div>
+
+            {display.seabed && display.seabed.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Seabed</div>
+                {display.seabed.map((s, i) => <span key={i} className="chip">{s}</span>)}
+              </div>
+            )}
+
+            {display.mooring && display.mooring.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Mooring</div>
+                {display.mooring.map((s, i) => <span key={i} className={'chip' + (s.includes('forbidden') ? ' warn' : ' ok')}>{s}</span>)}
+              </div>
+            )}
+
+            {display.services && display.services.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Services</div>
+                {display.services.map((s, i) => <span key={i} className="chip">{s}</span>)}
+              </div>
+            )}
+
+            {display.phone && (
+              <div style={{fontSize:'.78rem',color:'#cbd5e1',marginBottom:'.5rem'}}>📞 {display.phone}</div>
+            )}
+
+            <a className="nav-link" href={displayLink.url} target="_blank" rel="noopener">Open on Navily ↗</a>
+            {nvLinks.length > 1 && (
+              <div style={{marginTop:'.5rem',fontSize:'.72rem',color:'#64748b'}}>
+                <div style={{marginBottom:'.2rem'}}>Other nearby Navily spots:</div>
+                {nvLinks.filter(l => l.id !== displayLink.id).map(l => (
+                  <a key={l.id} href={l.url} target="_blank" rel="noopener" style={{display:'block',color:'#93c5fd',textDecoration:'none',padding:'.15rem 0'}}>
+                    {l.name} ({l.kind}) · {l.distance_km} km
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {display.reviews && display.reviews.length > 0 && (
+              <div style={{marginTop:'.75rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.4rem'}}>Recent reviews</div>
+                {display.reviews.slice(0, 4).map((r, i) => (
+                  <div key={i} className="review">
+                    <div className="ra"><b>{r.author || 'Anonymous'}</b><span>{r.rating.toFixed(1)} ★ · {r.date}</span></div>
+                    {r.body && <div className="rb">{r.body.length > 300 ? r.body.slice(0, 300) + '…' : r.body}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {!display && (
+          <section className="dp-section">
+            <h3>Reference</h3>
+            <div className="empty">No community data matched within 3 km of this point.</div>
+            <a className="nav-link sec" href={`https://www.navily.com/map/@${harbor.lat},${harbor.lon},14z`} target="_blank" rel="noopener">Search on Navily ↗</a>
+          </section>
+        )}
+
         <section className="dp-section">
-          <h3>Navily</h3>
-          <div className="empty">No Navily entry matched within 3 km of this point.</div>
-          <a className="nav-link sec" href={`https://www.navily.com/map/@${harbor.lat},${harbor.lon},14z`} target="_blank" rel="noopener">Search on Navily ↗</a>
+          <h3>External links</h3>
+          <a className="nav-link sec" href={`https://www.openstreetmap.org/?mlat=${harbor.lat}&mlon=${harbor.lon}&zoom=15`} target="_blank" rel="noopener" style={{marginRight:'.4rem'}}>OpenStreetMap ↗</a>
+          <a className="nav-link sec" href={`https://www.windy.com/?${harbor.lat},${harbor.lon},12`} target="_blank" rel="noopener">Windy ↗</a>
         </section>
-      )}
-
-      <section className="dp-section">
-        <h3>External</h3>
-        <a className="nav-link sec" href={`https://www.openstreetmap.org/?mlat=${harbor.lat}&mlon=${harbor.lon}&zoom=15`} target="_blank" rel="noopener" style={{marginRight:'.4rem'}}>OpenStreetMap ↗</a>
-        <a className="nav-link sec" href={`https://www.windy.com/?${harbor.lat},${harbor.lon},12`} target="_blank" rel="noopener">Windy ↗</a>
-      </section>
+      </div>
     </>
   );
 }
@@ -9723,11 +9376,6 @@ function renderStars(rating) {
   if (half) s += '⯨';
   for (let i = 0; i < 5 - full - (half ? 1 : 0); i++) s += '☆';
   return s;
-}
-
-// Assign stable harbor.id for keys (fallback)
-function patchHarbors(hs) {
-  return hs.map((h, i) => ({...h, id: h.id || `h${i+1}`}));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);

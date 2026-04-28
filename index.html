@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Saronic Gulf Skipper — Decision Tool</title>
+<title>Saronic Gulf Sailing Log</title>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -11,971 +11,635 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0}
+html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;overflow:hidden}
 #root{width:100%;height:100%}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#1e293b}::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
-.app{display:flex;flex-direction:column;height:100vh}
-.hdr{background:#1e293b;border-bottom:1px solid #334155;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-.hdr h1{font-size:1.3rem;font-weight:700;color:#e2e8f0;letter-spacing:.3px}
-.hdr-wind{font-size:.85rem;color:#94a3b8;margin-left:1.5rem}
-.hdr-wind b{color:#38bdf8}
-.tabs{display:flex;gap:0;background:#1e293b;border-bottom:1px solid #334155;padding:0 1rem}
-.tab{padding:.6rem 1.2rem;background:transparent;color:#94a3b8;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:.9rem;font-weight:500;transition:all .15s}
-.tab:hover{color:#cbd5e1}.tab.on{color:#38bdf8;border-bottom-color:#38bdf8}
-.main{flex:1;overflow-y:auto;padding:1.25rem}
-/* Cards & badges */
-.card{background:#1e293b;border:1px solid #334155;border-radius:3px;padding:1.25rem;margin-bottom:1rem}
-.card h3{font-size:1rem;font-weight:600;color:#e2e8f0;margin-bottom:.75rem}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
-.badge{display:inline-block;padding:.15rem .6rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.bg{background:rgba(34,197,94,.15);color:#86efac}.bc{background:rgba(245,158,11,.15);color:#fcd34d}
-.bp{background:rgba(239,68,68,.15);color:#fca5a5}.ba{background:rgba(100,116,139,.2);color:#94a3b8}
-.bu{background:rgba(100,116,139,.1);color:#64748b}
-.tm{background:rgba(59,130,246,.15);color:#93c5fd}.tp{background:rgba(6,182,212,.15);color:#67e8f9}
-.tb{background:rgba(249,115,22,.15);color:#fdba74}.ta{background:rgba(16,185,129,.15);color:#6ee7b7}
-.tbf{background:rgba(249,115,22,.15);color:#fdba74}
-/* Weather */
-.wx{background:#0f172a;border:1px solid #334155;border-radius:3px;padding:.75rem;margin-top:.5rem}
-.wx-row{display:flex;justify-content:space-between;padding:.35rem 0;font-size:.85rem;border-bottom:1px solid #1e293b}
-.wx-row:last-child{border:none}.wx-l{color:#94a3b8}.wx-v{color:#e2e8f0;font-weight:600}
-/* Filters */
-.fbar{background:#1e293b;border:1px solid #334155;border-radius:3px;padding:.75rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
-.fbtn{padding:.3rem .7rem;background:#334155;color:#cbd5e1;border:1px solid #475569;border-radius:2px;cursor:pointer;font-size:.78rem;font-weight:500;transition:all .15s;white-space:nowrap}
-.fbtn:hover{background:#475569}.fbtn.on{background:#38bdf8;color:#0f172a;border-color:#38bdf8}
-.fsep{width:1px;height:20px;background:#475569;margin:0 .3rem}
-/* Location cards */
-.loc{background:#1e293b;border:1px solid #334155;border-radius:3px;padding:1rem;cursor:pointer;transition:all .15s}
-.loc:hover{border-color:#475569;background:#253349}
-.loc-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
-.loc-name{font-size:.95rem;font-weight:600;color:#e2e8f0;display:flex;align-items:center;gap:.4rem}
-.loc-island{font-size:.8rem;color:#94a3b8;font-weight:400}
-.cdot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
-.loc-meta{font-size:.8rem;color:#94a3b8;margin-bottom:.5rem}
-.svc{display:flex;gap:.25rem;margin-bottom:.5rem;flex-wrap:wrap}
-.si{width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:rgba(59,130,246,.15);color:#93c5fd;border-radius:2px;font-size:.7rem;font-weight:700}
-.si.off{background:rgba(100,116,139,.08);color:#475569}
-.loc-exp{margin-top:.75rem;padding-top:.75rem;border-top:1px solid #334155;font-size:.83rem;color:#cbd5e1}
-.loc-exp .row{display:flex;justify-content:space-between;padding:.25rem 0}
-.loc-exp .lbl{color:#94a3b8;font-weight:500}.loc-exp .val{font-weight:500;text-align:right}
-/* Route planner */
-.rp{max-width:900px}
-.plan-sel{display:flex;gap:.5rem;margin-bottom:1rem}
-.plan-btn{flex:1;padding:.6rem;background:#334155;color:#cbd5e1;border:1px solid #475569;border-radius:2px;cursor:pointer;font-size:.9rem;font-weight:600}
-.plan-btn.on{background:#38bdf8;color:#0f172a;border-color:#38bdf8}
-.day{background:#1e293b;border:1px solid #334155;border-radius:3px;padding:1rem;margin-bottom:.75rem}
-.day-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-.day-num{font-size:.9rem;font-weight:600;color:#38bdf8}
-.day select{width:100%;padding:.45rem;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:2px;font-size:.85rem}
-.day select:focus{outline:none;border-color:#38bdf8}
-.leg-info{background:#0f172a;border:1px solid #334155;border-radius:2px;padding:.6rem;margin-top:.5rem;font-size:.82rem}
-.leg-row{display:flex;justify-content:space-between;padding:.2rem 0}.leg-l{color:#94a3b8}.leg-v{color:#e2e8f0;font-weight:500}
-.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:2px;padding:.5rem;margin-top:.4rem;font-size:.78rem;color:#fcd34d}
-.warn div{margin-bottom:.2rem}.warn div:last-child{margin:0}
-.totals{background:#0f172a;border:1px solid #334155;border-radius:3px;padding:1rem;margin-top:.5rem}
-.tot-row{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.9rem}
-.tot-l{color:#94a3b8;font-weight:500}.tot-v{color:#38bdf8;font-weight:700;font-size:1rem}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#1e293b}
+::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
+
+.app{display:flex;height:100vh;width:100vw;overflow:hidden}
+
+/* Sidebar */
+.sb{width:340px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0}
+.sb-hdr{padding:1rem 1.25rem;border-bottom:1px solid #334155}
+.sb-hdr h1{font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:.15rem}
+.sb-hdr .sub{font-size:.75rem;color:#64748b}
+.sb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;padding:.75rem 1.25rem;border-bottom:1px solid #334155;font-size:.75rem}
+.sb-stats .s{text-align:left}
+.sb-stats .n{color:#38bdf8;font-weight:700;font-size:1.05rem}
+.sb-stats .l{color:#64748b;text-transform:uppercase;letter-spacing:.3px;margin-top:.1rem;font-size:.65rem}
+.sb-tabs{display:flex;border-bottom:1px solid #334155}
+.sb-tab{flex:1;padding:.6rem;background:transparent;color:#94a3b8;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:.82rem;font-weight:500}
+.sb-tab:hover{color:#cbd5e1}
+.sb-tab.on{color:#38bdf8;border-bottom-color:#38bdf8}
+.sb-body{flex:1;overflow-y:auto;padding:.5rem 0}
+.sb-foot{padding:.6rem 1.25rem;border-top:1px solid #334155;font-size:.68rem;color:#64748b;line-height:1.4}
+
+/* Voyage groups */
+.vg{padding:0 .5rem;margin-bottom:.5rem}
+.vg-hdr{padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-radius:3px}
+.vg-hdr:hover{background:#253349}
+.vg-hdr.on{background:rgba(56,189,248,.08)}
+.vg-name{font-size:.85rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:.5rem}
+.vg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.vg-meta{font-size:.7rem;color:#64748b;margin-top:.15rem;margin-left:1.25rem}
+
+/* Trip row */
+.tr{padding:.4rem .75rem .4rem 1.75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.tr:hover{background:#253349}
+.tr.on{background:rgba(56,189,248,.12)}
+.tr-nm{font-size:.82rem;color:#cbd5e1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-nm .d{font-size:.7rem;color:#64748b;margin-right:.4rem;font-weight:400}
+.tr-dist{font-size:.72rem;color:#94a3b8;flex-shrink:0}
+
+/* Harbor row */
+.hr{padding:.5rem .75rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;margin-bottom:.15rem;gap:.5rem}
+.hr:hover{background:#253349}
+.hr.on{background:rgba(56,189,248,.12)}
+.hr-nm{font-size:.83rem;color:#e2e8f0;font-weight:500;display:flex;align-items:center;gap:.35rem}
+.hr-sub{font-size:.7rem;color:#64748b;margin-top:.1rem}
+.hr-v{background:rgba(56,189,248,.15);color:#93c5fd;padding:.1rem .4rem;border-radius:2px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.hr-approx{background:rgba(148,163,184,.18);color:#94a3b8;padding:.05rem .35rem;border-radius:2px;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
 /* Map */
-.map-wrap{position:relative;height:calc(100vh - 140px);border:1px solid #334155;border-radius:3px;overflow:hidden}
-#map{width:100%;height:100%}
-.map-legend{position:absolute;bottom:12px;left:12px;background:rgba(15,23,42,.92);border:1px solid #334155;border-radius:3px;padding:.75rem;z-index:999;font-size:.78rem}
-.map-legend h4{color:#e2e8f0;margin-bottom:.5rem;font-size:.82rem}
-.ml-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem;color:#cbd5e1}
-.ml-dot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3)}
-.map-panel{position:absolute;top:0;right:0;width:360px;height:100%;background:#1e293b;border-left:1px solid #334155;overflow-y:auto;z-index:999;padding:1.25rem;box-shadow:-4px 0 12px rgba(0,0,0,.3)}
-.mp-close{position:absolute;top:.75rem;right:.75rem;background:none;border:none;color:#94a3b8;font-size:1.3rem;cursor:pointer}
-.mp-close:hover{color:#e2e8f0}
-.map-filters{position:absolute;top:12px;right:12px;background:rgba(15,23,42,.92);border:1px solid #334155;border-radius:3px;padding:.75rem;z-index:998;max-width:200px}
-.map-filters h4{font-size:.82rem;color:#e2e8f0;margin-bottom:.5rem}
-.mf-opt{display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;font-size:.78rem;color:#cbd5e1;cursor:pointer}
-.mf-opt input{cursor:pointer}
-/* Compare */
-.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}
-.cmp-card{background:#1e293b;border:1px solid #334155;border-radius:3px;padding:1rem}
-.cmp-card h4{font-size:1rem;font-weight:600;color:#e2e8f0;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid #334155}
-.cmp-row{display:flex;justify-content:space-between;padding:.35rem 0;font-size:.83rem;border-bottom:1px solid rgba(51,65,85,.5)}
-.cmp-row:last-child{border:none}.cmp-l{color:#94a3b8}.cmp-v{color:#cbd5e1;text-align:right;font-weight:500}
-/* Misc */
-.empty{color:#64748b;font-style:italic;padding:2rem;text-align:center}
-.btn{padding:.4rem .8rem;background:#38bdf8;color:#0f172a;border:none;border-radius:2px;cursor:pointer;font-size:.8rem;font-weight:600}
-.btn:hover{background:#0ea5e9}
-.btn-s{padding:.3rem .6rem;background:#334155;color:#cbd5e1;border:1px solid #475569;border-radius:2px;cursor:pointer;font-size:.75rem;font-weight:500}
-.btn-s:hover{background:#475569}
-.btn-x{padding:.3rem .5rem;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);border-radius:2px;cursor:pointer;font-size:.75rem}
-.loading{display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:1.1rem}
-.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:3px;padding:1.5rem;color:#fca5a5;text-align:center}
+.map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%;background:#0f172a}
+.leaflet-container{background:#0a1423}
+.leaflet-popup-content-wrapper{background:#1e293b;color:#e2e8f0;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.leaflet-popup-content{margin:.6rem .8rem;font-size:.8rem}
+.leaflet-popup-tip{background:#1e293b}
+.leaflet-control-zoom a{background:#1e293b;color:#e2e8f0;border:1px solid #334155}
+.leaflet-control-zoom a:hover{background:#334155}
+.leaflet-control-attribution{background:rgba(15,23,42,.8)!important;color:#64748b!important;font-size:.65rem!important}
+.leaflet-control-attribution a{color:#94a3b8!important}
+
+/* Detail panel */
+.dp{position:absolute;top:0;right:0;width:420px;height:100%;background:#1e293b;border-left:1px solid #334155;display:flex;flex-direction:column;box-shadow:-4px 0 12px rgba(0,0,0,.3);z-index:1000;transform:translateX(100%);transition:transform .2s ease}
+.dp.on{transform:translateX(0)}
+.dp-hdr{padding:1rem 1.25rem;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.dp-hdr h2{font-size:1.05rem;font-weight:700;color:#e2e8f0;margin-bottom:.2rem;line-height:1.25;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.dp-hdr .addr{font-size:.72rem;color:#94a3b8;line-height:1.4}
+.dp-close{background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:1.4rem;line-height:1;padding:0 .2rem}
+.dp-close:hover{color:#e2e8f0}
+.dp-body{flex:1;overflow-y:auto;padding:1rem 1.25rem}
+.dp-section{margin-bottom:1.25rem}
+.dp-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:#64748b;font-weight:700;margin-bottom:.5rem}
+.dp-section .h3-sub{font-size:.7rem;color:#475569;font-weight:400;text-transform:none;letter-spacing:0;margin-left:.4rem}
+
+.chip{display:inline-block;background:#334155;color:#cbd5e1;padding:.2rem .55rem;border-radius:2px;font-size:.72rem;margin:0 .25rem .25rem 0}
+.chip.ok{background:rgba(34,197,94,.15);color:#86efac}
+.chip.warn{background:rgba(245,158,11,.15);color:#fcd34d}
+
+.visit{padding:.5rem .65rem;background:#0f172a;border:1px solid #334155;border-radius:3px;margin-bottom:.4rem;font-size:.78rem}
+.visit .vd{color:#38bdf8;font-weight:600;margin-bottom:.15rem}
+.visit .vm{color:#94a3b8;font-size:.72rem}
+
+.rating{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.4rem}
+.rating .n{font-size:1.6rem;font-weight:700;color:#fcd34d}
+.rating .s{display:flex;color:#fcd34d;font-size:.95rem;letter-spacing:.1rem}
+.rating .c{font-size:.75rem;color:#94a3b8}
+.rank{font-size:.75rem;color:#94a3b8;margin-bottom:.6rem}
+.rank b{color:#e2e8f0}
+
+.review{background:#0f172a;border-left:2px solid #334155;padding:.5rem .7rem;margin-bottom:.5rem;font-size:.78rem;line-height:1.4}
+.review .ra{display:flex;justify-content:space-between;font-size:.72rem;color:#94a3b8;margin-bottom:.2rem}
+.review .ra b{color:#cbd5e1}
+.review .rb{color:#cbd5e1}
+
+.nav-link{display:inline-block;background:#38bdf8;color:#0f172a;padding:.35rem .75rem;border-radius:2px;font-size:.75rem;font-weight:600;text-decoration:none;margin-top:.3rem}
+.nav-link:hover{background:#0ea5e9}
+.nav-link.sec{background:#334155;color:#cbd5e1}
+.nav-link.sec:hover{background:#475569}
+
+.hero{width:100%;height:180px;object-fit:cover;border-radius:3px;margin-bottom:.75rem;background:#0f172a}
+.empty{font-size:.8rem;color:#64748b;font-style:italic;padding:.4rem 0}
+
+.approx{display:inline-block;background:rgba(148,163,184,.18);color:#94a3b8;padding:.1rem .4rem;border-radius:2px;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;vertical-align:middle}
+
+.disclaimer{font-size:.7rem;color:#64748b;line-height:1.4;background:#0f172a;border:1px solid #334155;border-radius:3px;padding:.55rem .7rem;margin:0 .5rem .5rem .5rem}
+
+/* Legend */
+.legend{position:absolute;bottom:20px;left:20px;background:rgba(30,41,59,.95);border:1px solid #334155;border-radius:3px;padding:.6rem .8rem;font-size:.72rem;z-index:500;min-width:200px;max-height:60vh;overflow-y:auto}
+.legend h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:#64748b;margin-bottom:.4rem}
+.legend-row{display:flex;align-items:center;gap:.5rem;padding:.18rem 0;color:#cbd5e1;cursor:pointer;border-radius:2px;padding-left:.2rem;padding-right:.2rem}
+.legend-row:hover{background:rgba(255,255,255,.04)}
+.legend-row.on{background:rgba(56,189,248,.12);color:#e2e8f0}
+.legend-row .sw{width:22px;height:3px;border-radius:1px;flex-shrink:0}
+.legend-row .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Harbor marker */
+.hm-ico{background:#38bdf8;border:2px solid #0f172a;border-radius:50%;box-shadow:0 0 0 2px rgba(56,189,248,.4);transition:all .15s}
+.hm-ico.big{background:#fcd34d;box-shadow:0 0 0 3px rgba(252,211,77,.5)}
+.hm-ico.sel{background:#f43f5e;transform:scale(1.3);box-shadow:0 0 0 3px rgba(244,63,94,.6)}
+
+.sb-toggle{display:none}
+
+@media (max-width:768px){
+  .sb{position:absolute;z-index:1500;transform:translateX(-100%);transition:transform .2s;width:300px;height:100%}
+  .sb.on{transform:translateX(0)}
+  .sb-toggle{display:block;position:absolute;top:12px;left:12px;z-index:1400;background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:.4rem .6rem;border-radius:3px;cursor:pointer;font-size:1rem}
+  .dp{width:100%}
+  .legend{font-size:.68rem;min-width:160px;max-height:40vh}
+}
 </style>
 </head>
 <body>
 <div id="root"></div>
+
 <script type="text/babel">
-const {useState,useEffect,useRef,useMemo,useCallback}=React;
+const {useState, useEffect, useRef, useMemo} = React;
 
-/* ══════════════════════════════════════════
-   UTILITIES
-   ══════════════════════════════════════════ */
+// Each multi-day voyage gets its own colour on the map
+const VOYAGE_COLORS = ['#38bdf8', '#fcd34d', '#f472b6', '#86efac', '#fb923c', '#a78bfa', '#22d3ee', '#fda4af'];
 
-// Haversine distance in nautical miles
-function haversineNm(lat1,lng1,lat2,lng2){
-  const R=3440.065; // earth radius in nm
-  const toRad=x=>x*Math.PI/180;
-  const dLat=toRad(lat2-lat1), dLng=toRad(lng2-lng1);
-  const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function distNm(a,b){
-  const la=a.coordinates?a.coordinates.lat:a.lat, lo=a.coordinates?a.coordinates.lng:a.lng;
-  const lb=b.coordinates?b.coordinates.lat:b.lat, lo2=b.coordinates?b.coordinates.lng:b.lng;
-  return haversineNm(la,lo,lb,lo2);
-}
-
-function fmtNm(d){return d<10?d.toFixed(1):Math.round(d)}
-function eta(nm,kts){const m=Math.round(nm/kts*60);return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}m`}
-
-// Boat config
-const BOAT_DRAFT=2.20; // Sun Odyssey 440 draft in meters
-const DEPTH_SAFETY_MARGIN=0.5; // minimum clearance under keel
-const MIN_SAFE_DEPTH=BOAT_DRAFT+DEPTH_SAFETY_MARGIN; // 2.70m
-
-const COMPASS=['N','NE','E','SE','S','SW','W','NW'];
-function degToCompass(d){return COMPASS[Math.round(((d%360)+360)%360/45)%8]}
-
-function locLat(l){return l.coordinates?l.coordinates.lat:l.lat}
-function locLng(l){return l.coordinates?l.coordinates.lng:l.lng}
-
-/* ══════════════════════════════════════════
-   SUITABILITY ENGINE
-   ══════════════════════════════════════════ */
-
-function computeSuitability(loc, wx){
-  if(!wx) return {status:'unknown',reasons:['No forecast'],score:0,windInfo:'no data'};
-  const spd=wx.windSpeed, gust=wx.windGust||spd, dir=wx.windDir;
-  const compass=degToCompass(dir);
-  const exposed=loc.windProtection.exposedTo.includes(compass);
-  const protected_=loc.windProtection.protectedFrom.includes(compass);
-  const reasons=[];
-  let status='good',score=100;
-
-  // Wind speed + exposure
-  if(spd<10){status='good';score=100;}
-  else if(spd<15){
-    if(exposed){status='caution';score=65;reasons.push(`${spd.toFixed(0)}kt from exposed ${compass}`);}
-    else{status='good';score=85;reasons.push(`${spd.toFixed(0)}kt, protected from ${compass}`);}
-  }else if(spd<20){
-    if(exposed){status='poor';score=35;reasons.push(`${spd.toFixed(0)}kt from exposed ${compass}`);}
-    else{status='caution';score=55;reasons.push(`${spd.toFixed(0)}kt, protected from ${compass}`);}
-  }else if(spd<25){
-    if(exposed){status='avoid';score=10;reasons.push(`Strong ${spd.toFixed(0)}kt from exposed ${compass}`);}
-    else{status='poor';score=30;reasons.push(`Strong ${spd.toFixed(0)}kt (protected)`);}
-  }else{status='avoid';score=5;reasons.push(`Dangerous ${spd.toFixed(0)}kt wind`);}
-
-  // Gust penalty
-  if(gust>30){score-=25;reasons.push(`Gusts ${gust.toFixed(0)}kt`);
-    if(status==='good')status='caution';else if(status==='caution')status='poor';else if(status==='poor')status='avoid';
-  }else if(gust>25){score-=15;reasons.push(`Gusts ${gust.toFixed(0)}kt`);
-    if(status==='good')status='caution';else if(status==='caution')status='poor';
-  }
-
-  // Wave penalty
-  if(wx.waveHeight!=null){
-    if(wx.waveHeight>2.5){score-=20;reasons.push(`Waves ${wx.waveHeight.toFixed(1)}m`);
-      if(status==='good')status='caution';else if(status==='caution')status='poor';
-    }else if(wx.waveHeight>1.5){score-=10;reasons.push(`Waves ${wx.waveHeight.toFixed(1)}m`);}
-  }
-
-  // Settled weather penalty
-  if(loc.settledWeatherOnly&&spd>12){
-    score-=20;reasons.push('Settled weather required');
-    if(status==='good')status='caution';else if(status==='caution')status='poor';else if(status==='poor')status='avoid';
-  }
-
-  // Overnight bonus/penalty
-  if(!loc.overnightRecommended){score-=5;reasons.push('Not recommended overnight');}
-
-  // Approach difficulty in strong wind
-  if(loc.approachDifficulty==='difficult'&&spd>15){score-=10;reasons.push('Difficult approach in wind');}
-
-  // Ferry wake
-  if(loc.ferryWakeSurge&&spd>15){score-=5;reasons.push('Ferry wake + wind');}
-
-  // Draft/depth check (2.20m draft + 0.5m safety = 2.70m minimum)
-  if(loc.depth&&loc.depth.min!=null){
-    if(loc.depth.min<BOAT_DRAFT){
-      // Shallow spots exist, but max depth may be safe — warn, don't block if max is OK
-      if(loc.depth.max>=MIN_SAFE_DEPTH){
-        score-=15;reasons.push(`⚓ Shallow spots: ${loc.depth.min}m min (draft ${BOAT_DRAFT}m) — anchor in ${loc.depth.max}m+ zone`);
-        if(status==='good')status='caution';
-      }else{
-        score-=40;reasons.push(`⚓ TOO SHALLOW: ${loc.depth.min}-${loc.depth.max}m, need ≥${MIN_SAFE_DEPTH}m for ${BOAT_DRAFT}m draft`);
-        status='avoid';
-      }
-    }else if(loc.depth.min<MIN_SAFE_DEPTH){
-      score-=10;reasons.push(`⚓ Tight clearance: min ${loc.depth.min}m, draft ${BOAT_DRAFT}m (${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m under keel)`);
-      if(status==='good')status='caution';
-    }else if(loc.depth.min<4.0){
-      score-=5;reasons.push(`Shallow areas: min ${loc.depth.min}m (${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m clearance — approach with caution)`);
+// Group day-trips into voyages (consecutive days, gap ≤2 nights = same voyage)
+function groupVoyages(trips) {
+  const sorted = [...trips].sort((a, b) => a.date.localeCompare(b.date));
+  const voyages = [];
+  let cur = null;
+  for (const t of sorted) {
+    if (!cur || daysBetween(cur.trips.at(-1).date, t.date) > 2) {
+      cur = {id: `v${voyages.length + 1}`, trips: [t], color: VOYAGE_COLORS[voyages.length % VOYAGE_COLORS.length]};
+      voyages.push(cur);
+    } else {
+      cur.trips.push(t);
     }
   }
-
-  // Recalc status from score if score dropped
-  if(score>=70)status='good';else if(score>=45)status='caution';else if(score>=20)status='poor';else status='avoid';
-
-  if(reasons.length===0)reasons.push('Suitable conditions');
-  return {status,score:Math.max(0,Math.min(100,score)),reasons,
-    windInfo:`${spd.toFixed(0)}kt ${compass}${gust>spd+3?` G${gust.toFixed(0)}`:''}`};
+  for (const v of voyages) {
+    v.date_start = v.trips[0].date;
+    v.date_end = v.trips.at(-1).date;
+    v.nm = v.trips.reduce((s, t) => s + t.distance_nm, 0);
+    v.sailingDays = new Set(v.trips.map(t => t.date)).size;
+    v.spanDays = daysBetween(v.date_start, v.date_end) + 1;
+    v.name = formatDateRange(v.date_start, v.date_end);
+    v.season = seasonOf(v.date_start);
+  }
+  return voyages;
 }
 
-const SUIT_COLORS={good:'#22c55e',caution:'#eab308',poor:'#ef4444',avoid:'#64748b',unknown:'#475569'};
-const SUIT_BG={good:'bg',caution:'bc',poor:'bp',avoid:'ba',unknown:'bu'};
-const TYPE_BADGE={marina:'tm',port:'tp',buoy_field:'tbf',anchorage:'ta',mooring_field:'tbf'};
-
-/* ══════════════════════════════════════════
-   SCHEMA VALIDATION
-   ══════════════════════════════════════════ */
-
-const REQUIRED_FIELDS={
-  id:'string', island:'string', name:'string', type:'string',
-  description:'string', coordinates:'object', bottomType:'string',
-  holdingQuality:'string', approachDifficulty:'string', confidence:'string',
-  fallbackValue:'string'
-};
-const VALID_TYPES=['marina','port','buoy_field','anchorage','mooring_field'];
-const VALID_HOLDING=['excellent','good','moderate','poor','unknown'];
-const VALID_APPROACH=['easy','moderate','difficult'];
-const VALID_CONFIDENCE=['high','medium','low'];
-const VALID_FALLBACK=['high','medium','low','none'];
-const REQUIRED_SERVICES=['fuel','water','electricity','provisions','restaurants'];
-const COORD_BOUNDS={latMin:37.0,latMax:38.5,lngMin:22.5,lngMax:24.0};
-
-function validateLocations(locs){
-  const errors=[], warnings=[];
-  const ids=new Set();
-  const valid=[];
-
-  if(!Array.isArray(locs)){
-    errors.push({id:'dataset',field:'root',msg:'locations is not an array'});
-    return {valid:[],errors,warnings};
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+function formatDateRange(a, b) {
+  const da = new Date(a), db = new Date(b);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (da.getUTCFullYear() !== db.getUTCFullYear() || da.getUTCMonth() !== db.getUTCMonth()) {
+    return `${months[da.getUTCMonth()]} ${da.getUTCDate()} – ${months[db.getUTCMonth()]} ${db.getUTCDate()}, ${db.getUTCFullYear()}`;
   }
+  if (da.getUTCDate() === db.getUTCDate()) {
+    return `${months[da.getUTCMonth()]} ${da.getUTCDate()}, ${db.getUTCFullYear()}`;
+  }
+  return `${months[da.getUTCMonth()]} ${da.getUTCDate()}–${db.getUTCDate()}, ${db.getUTCFullYear()}`;
+}
+function seasonOf(dateStr) {
+  const m = new Date(dateStr).getUTCMonth() + 1;
+  const y = new Date(dateStr).getUTCFullYear();
+  if (m >= 3 && m <= 5) return `Spring ${y}`;
+  if (m >= 6 && m <= 8) return `Summer ${y}`;
+  if (m >= 9 && m <= 11) return `Autumn ${y}`;
+  return `Winter ${y}`;
+}
+function formatDuration(mins) {
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
 
-  locs.forEach((loc,idx)=>{
-    const lid=loc.id||`[index ${idx}]`;
-    const locErrors=[];
+// Best human-readable harbour name from OSM, or coordinates as fallback.
+// Returns {name, approx} where approx=true means "auto-geocoded, treat with caution".
+function harborLabel(h) {
+  if (!h.osm) {
+    return {name: `${h.lat.toFixed(3)}°N, ${h.lon.toFixed(3)}°E`, approx: true};
+  }
+  const a = h.osm.address || {};
+  const specific = a.village || a.hamlet || a.suburb || a.town || a.city || a.neighbourhood;
+  if (specific) return {name: specific, approx: false};
+  const fallback = h.osm.name || a.municipality || a.county;
+  if (fallback) return {name: fallback, approx: true};
+  return {name: `${h.lat.toFixed(3)}°N, ${h.lon.toFixed(3)}°E`, approx: true};
+}
+function harborArea(h) {
+  if (!h.osm) return '';
+  const a = h.osm.address || {};
+  return a.municipality || a.county || a.state || a.country || '';
+}
 
-    // Required fields + types
-    for(const [f,t] of Object.entries(REQUIRED_FIELDS)){
-      if(loc[f]==null){locErrors.push(`missing required field "${f}"`);}
-      else if(typeof loc[f]!==t){locErrors.push(`"${f}" should be ${t}, got ${typeof loc[f]}`);}
-    }
+function App() {
+  const [trips, setTrips] = useState([]);
+  const [harbors, setHarbors] = useState([]);
+  const [navily, setNavily] = useState({});
+  const [selVoyage, setSelVoyage] = useState(null);
+  const [selTrip, setSelTrip] = useState(null);
+  const [selHarbor, setSelHarbor] = useState(null);
+  const [sbTab, setSbTab] = useState('voyages');
+  const [sbOpen, setSbOpen] = useState(false);
+  const [loadErr, setLoadErr] = useState(null);
+  const mapRef = useRef(null);
+  const tileLayerRef = useRef(null);
+  const trackLayersRef = useRef({});
+  const harborMarkersRef = useRef({});
 
-    // Duplicate ID
-    if(loc.id){if(ids.has(loc.id)){locErrors.push(`duplicate id "${loc.id}");} ids.add(loc.id);}
+  useEffect(() => {
+    Promise.all([
+      fetch('data/trips.json').then(r => r.json()),
+      fetch('data/harbors.json').then(r => r.json()),
+      fetch('data/navily.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+    ]).then(([ts, hs, nv]) => {
+      setTrips(ts);
+      setHarbors(hs);
+      setNavily(nv);
+    }).catch(e => setLoadErr(e.message));
+  }, []);
 
-    // Enum checks
-    if(loc.type&&!VALID_TYPES.includes(loc.type)) locErrors.push(`type "${loc.type}" not in [${VALID_TYPES}]`);
-    if(loc.holdingQuality&&!VALID_HOLDING.includes(loc.holdingQuality)) locErrors.push(`holdingQuality "${loc.holdingQuality}" invalid`);
-    if(loc.approachDifficulty&&!VALID_APPROACH.includes(loc.approachDifficulty)) locErrors.push(`approachDifficulty "${loc.approachDifficulty}" invalid`);
-    if(loc.confidence&&!VALID_CONFIDENCE.includes(loc.confidence)) locErrors.push(`confidence "${loc.confidence}" invalid`);
-    if(loc.fallbackValue&&!VALID_FALLBACK.includes(loc.fallbackValue)) locErrors.push(`fallbackValue "${loc.fallbackValue}" invalid`);
+  const voyages = useMemo(() => groupVoyages(trips), [trips]);
 
-    // Coordinates range
-    if(loc.coordinates){
-      const{lat,lng}=loc.coordinates;
-      if(typeof lat!=='number'||typeof lng!=='number') locErrors.push('coordinates.lat/lng must be numbers');
-      else if(lat<COORD_BOUNDS.latMin||lat>COORD_BOUNDS.latMax||lng<COORD_BOUNDS.lngMin||lng>COORD_BOUNDS.lngMax)
-        locErrors.push(`coordinates (${lat},${lng}) outside Saronic Gulf bounds`);
-    }
+  // Init map once trips load
+  useEffect(() => {
+    if (!trips.length || mapRef.current) return;
+    const map = L.map('map', {zoomControl: true, attributionControl: true}).setView([37.7, 23.7], 9);
+    mapRef.current = map;
 
-    // Depth
-    if(!loc.depth||loc.depth.min==null||loc.depth.max==null) warnings.push({id:lid,msg:'missing or incomplete depth data'});
-    else if(loc.depth.min>loc.depth.max) locErrors.push(`depth.min (${loc.depth.min}) > depth.max (${loc.depth.max})`);
+    tileLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
 
-    // Wind protection
-    if(!loc.windProtection||!Array.isArray(loc.windProtection.exposedTo)||!Array.isArray(loc.windProtection.protectedFrom))
-      locErrors.push('windProtection must have exposedTo[] and protectedFrom[]');
+    const all = [];
+    trips.forEach(t => t.track.forEach(p => all.push(p)));
+    if (all.length) map.fitBounds(L.latLngBounds(all), {padding: [40, 40]});
+  }, [trips]);
 
-    // Services object
-    if(!loc.services||typeof loc.services!=='object') locErrors.push('missing services object');
-    else REQUIRED_SERVICES.forEach(s=>{if(loc.services[s]==null) warnings.push({id:lid,msg:`services.${s} missing`});});
+  // Track polylines
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !voyages.length) return;
+    Object.values(trackLayersRef.current).forEach(l => map.removeLayer(l));
+    trackLayersRef.current = {};
 
-    // Booleans
-    ['overnightRecommended','settledWeatherOnly','ferryWakeSurge'].forEach(b=>{
-      if(loc[b]==null) warnings.push({id:lid,msg:`${b} missing (defaulting false)`});
+    voyages.forEach(v => {
+      v.trips.forEach(t => {
+        const poly = L.polyline(t.track, {
+          color: v.color,
+          weight: selTrip === t.id ? 4 : 2.5,
+          opacity: selVoyage && selVoyage !== v.id ? 0.2 : (selTrip && selTrip !== t.id ? 0.4 : 0.85),
+        });
+        poly.on('click', () => {
+          setSelTrip(t.id);
+          setSelVoyage(v.id);
+          setSelHarbor(null);
+        });
+        poly.bindTooltip(`<b>${t.name}</b><br>${t.date} · ${t.distance_nm.toFixed(1)} nm`, {sticky: true});
+        poly.addTo(map);
+        trackLayersRef.current[t.id] = poly;
+      });
     });
+  }, [voyages, selTrip, selVoyage]);
 
-    // Hazards
-    if(!Array.isArray(loc.hazards)) warnings.push({id:lid,msg:'hazards should be an array'});
+  // Harbor markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !harbors.length) return;
+    Object.values(harborMarkersRef.current).forEach(m => map.removeLayer(m));
+    harborMarkersRef.current = {};
 
-    if(locErrors.length>0){
-      locErrors.forEach(msg=>errors.push({id:lid,field:'',msg}));
-      // Still include if it has minimum shape to render
-      if(loc.id&&loc.coordinates&&loc.name) valid.push(loc);
-    }else{
-      valid.push(loc);
-    }
-  });
-
-  // Console report
-  console.group('Schema Validation');
-  console.log(`${locs.length} records checked → ${valid.length} valid, ${errors.length} errors, ${warnings.length} warnings`);
-  if(errors.length>0){console.warn('ERRORS:');errors.forEach(e=>console.warn(`  [${e.id}] ${e.msg}`));}
-  if(warnings.length>0){console.info('WARNINGS:');warnings.forEach(w=>console.info(`  [${w.id}] ${w.msg}`));}
-  console.groupEnd();
-
-  return {valid,errors,warnings};
-}
-
-/* ══════════════════════════════════════════
-   FORECAST SERVICE — clustered by proximity
-   ══════════════════════════════════════════
-   Clustering rule: locations within CLUSTER_RADIUS nm of an
-   existing cluster centroid share one API call. With the
-   current 30 locations this yields 8 clusters. The cluster
-   centroid is the first location assigned to each cluster.
-   ══════════════════════════════════════════ */
-
-const CLUSTER_RADIUS_NM=3; // locations within 3nm share a forecast
-
-function buildForecastClusters(locs){
-  const clusters=[]; // [{id, lat, lng, locationIds:[]}]
-  locs.forEach(loc=>{
-    const lat=locLat(loc), lng=locLng(loc);
-    let best=null, bestDist=Infinity;
-    clusters.forEach(c=>{
-      const d=haversineNm(lat,lng,c.lat,c.lng);
-      if(d<CLUSTER_RADIUS_NM&&d<bestDist){best=c;bestDist=d;}
+    harbors.forEach(h => {
+      const realVisits = h.visits.filter(v => (v.duration_min || 0) >= 30 || !v.kind);
+      const isHub = realVisits.length >= 3 || h.visits.length >= 5;
+      const isSel = selHarbor === h.id;
+      const size = isHub ? 14 : 10;
+      const cls = 'hm-ico' + (isHub ? ' big' : '') + (isSel ? ' sel' : '');
+      const ico = L.divIcon({
+        className: '',
+        html: `<div class="${cls}" style="width:${size}px;height:${size}px"></div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
+      const marker = L.marker([h.lat, h.lon], {icon: ico});
+      const lbl = harborLabel(h);
+      marker.bindTooltip(`<b>${lbl.name}${lbl.approx ? ' (approx.)' : ''}</b><br>${h.visits.length} visits`, {direction: 'top'});
+      marker.on('click', () => {
+        setSelHarbor(h.id);
+        setSelTrip(null);
+      });
+      marker.addTo(map);
+      harborMarkersRef.current[h.id] = marker;
     });
-    if(best){
-      best.locationIds.push(loc.id);
-    }else{
-      clusters.push({id:`cl_${clusters.length}`,lat,lng,locationIds:[loc.id]});
-    }
-  });
-  // Build location→cluster lookup
-  const locToCluster={};
-  clusters.forEach(c=>c.locationIds.forEach(lid=>{locToCluster[lid]=c.id;}));
-  console.log(`Forecast clusters: ${clusters.length} clusters for ${locs.length} locations`);
-  clusters.forEach(c=>console.log(`  ${c.id}: ${c.locationIds.length} locs @ (${c.lat.toFixed(3)},${c.lng.toFixed(3)}) — ${c.locationIds.join(', ')}`));
-  return {clusters,locToCluster};
-}
+  }, [harbors, selHarbor, navily]);
 
-async function fetchClusterForecast(lat,lng){
-  try{
-    const wxRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn&timezone=Europe/Rome&forecast_days=3`);
-    const wx=await wxRes.json();
-    if(!wx.hourly)throw new Error('No hourly wind data');
-    let mar=null;
-    try{
-      const marRes=await fetch(`https://api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period&timezone=Europe/Rome&forecast_days=3`);
-      mar=await marRes.json();
-      if(!mar.hourly)mar=null;
-    }catch(e){/* marine data optional */}
+  // Pan to selected harbour
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selHarbor) return;
+    const h = harbors.find(x => x.id === selHarbor);
+    if (h) map.flyTo([h.lat, h.lon], Math.max(map.getZoom(), 12), {duration: 0.6});
+  }, [selHarbor, harbors]);
 
-    const times=wx.hourly.time.map(t=>new Date(t));
-    const now=new Date();
-    const ci=Math.max(0,times.findIndex(t=>t>now)-1);
-    const parse=(i)=>{
-      const o={
-        windSpeed:Math.round(wx.hourly.wind_speed_10m[i]*10)/10,
-        windGust:Math.round(wx.hourly.wind_gusts_10m[i]*10)/10,
-        windDir:Math.round(wx.hourly.wind_direction_10m[i]),
-        waveHeight:null,waveDir:null,wavePeriod:null,swellHeight:null,swellDir:null
-      };
-      if(mar&&mar.hourly&&mar.hourly.wave_height){
-        o.waveHeight=mar.hourly.wave_height[i];
-        o.waveDir=mar.hourly.wave_direction?mar.hourly.wave_direction[i]:null;
-        o.wavePeriod=mar.hourly.wave_period?mar.hourly.wave_period[i]:null;
-        o.swellHeight=mar.hourly.swell_wave_height?mar.hourly.swell_wave_height[i]:null;
-        o.swellDir=mar.hourly.swell_wave_direction?mar.hourly.swell_wave_direction[i]:null;
+  // Fit to selected trip / voyage
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (selTrip) {
+      const t = trips.find(x => x.id === selTrip);
+      if (t && t.track.length) map.fitBounds(L.latLngBounds(t.track), {padding: [50, 50]});
+    } else if (selVoyage) {
+      const v = voyages.find(x => x.id === selVoyage);
+      if (v) {
+        const pts = [];
+        v.trips.forEach(t => t.track.forEach(p => pts.push(p)));
+        if (pts.length) map.fitBounds(L.latLngBounds(pts), {padding: [50, 50]});
       }
-      return o;
-    };
-    return {
-      current:parse(ci),
-      in12h:parse(Math.min(ci+12,times.length-1)),
-      in24h:parse(Math.min(ci+24,times.length-1)),
-      in48h:parse(Math.min(ci+48,times.length-1))
-    };
-  }catch(e){console.error('Forecast error for cluster at',lat,lng,':',e);return null;}
-}
+    }
+  }, [selTrip, selVoyage, trips, voyages]);
 
-// Returns {forecasts:{clusterId:data|null}, meta:{total,ok,failed,failedIds,timestamp}}
-async function fetchAllForecasts(clusters){
-  const results=await Promise.all(clusters.map(c=>fetchClusterForecast(c.lat,c.lng)));
-  const forecasts={};
-  let ok=0,failed=0;
-  const failedIds=[];
-  clusters.forEach((c,i)=>{
-    forecasts[c.id]=results[i];
-    if(results[i])ok++; else{failed++;failedIds.push(c.id);}
-  });
-  const meta={total:clusters.length,ok,failed,failedIds,timestamp:Date.now()};
-  console.log(`Forecast fetch: ${ok}/${clusters.length} OK, ${failed} failed`);
-  return {forecasts,meta};
-}
+  const stats = useMemo(() => {
+    const totalNm = trips.reduce((s, t) => s + t.distance_nm, 0);
+    const sailingDays = new Set(trips.map(t => t.date)).size;
+    const uniqueHarbors = harbors.filter(h => h.visits.some(v => (v.duration_min || 0) >= 30 || !v.kind)).length;
+    return {nm: totalNm, days: sailingDays, harbors: uniqueHarbors, voyages: voyages.length};
+  }, [trips, harbors, voyages]);
 
-/* ══════════════════════════════════════════
-   DATA LOADING
-   ══════════════════════════════════════════ */
+  const harborsSorted = useMemo(() => {
+    return [...harbors].sort((a, b) => b.visits.length - a.visits.length);
+  }, [harbors]);
 
-async function loadLocations(){
-  try{
-    const res=await fetch('data/locations.json');
-    if(!res.ok)throw new Error(res.status);
-    const d=await res.json();
-    return d.locations||d;
-  }catch(e){
-    console.warn('Could not load data/locations.json — serve via HTTP. Error:',e);
-    return null;
-  }
-}
+  const selectedH = harbors.find(h => h.id === selHarbor);
 
-/* ══════════════════════════════════════════
-   COMPONENTS
-   ══════════════════════════════════════════ */
+  return (
+    <div className="app">
+      <button className="sb-toggle" onClick={() => setSbOpen(!sbOpen)}>☰</button>
 
-// ——— SuitBadge ———
-function SuitBadge({s}){return <span className={`badge ${SUIT_BG[s.status]||'bu'}`}>{s.status.toUpperCase()}</span>}
-function TypeBadge({t}){return <span className={`badge ${TYPE_BADGE[t]||'ta'}`}>{t.replace('_',' ')}</span>}
-
-// ——— Service icons ———
-function SvcBar({s}){
-  const items=[['F','fuel'],['W','water'],['E','electricity'],['P','provisions'],['R','restaurants']];
-  return <div className="svc">{items.map(([l,k])=><div key={k} className={`si ${s[k]?'':'off'}`} title={k}>{l}</div>)}</div>;
-}
-
-// ——— Wind display ———
-function WindBox({fc,label}){
-  if(!fc)return null;
-  const trend=(a,b)=>{const d=b-a;return d>3?'↑':d<-3?'↓':'→'};
-  return <div className="wx">
-    <div className="wx-row"><span className="wx-l">Now</span><span className="wx-v">{fc.current.windSpeed}kt {degToCompass(fc.current.windDir)}{fc.current.windGust>fc.current.windSpeed+3?` G${fc.current.windGust}`:''}</span></div>
-    {fc.current.waveHeight!=null&&<div className="wx-row"><span className="wx-l">Waves</span><span className="wx-v">{fc.current.waveHeight.toFixed(1)}m{fc.current.swellHeight?` (swell ${fc.current.swellHeight.toFixed(1)}m)`:''}</span></div>}
-    <div className="wx-row"><span className="wx-l">+12h</span><span className="wx-v">{fc.in12h.windSpeed}kt {degToCompass(fc.in12h.windDir)} {trend(fc.current.windSpeed,fc.in12h.windSpeed)}</span></div>
-    <div className="wx-row"><span className="wx-l">+24h</span><span className="wx-v">{fc.in24h.windSpeed}kt {degToCompass(fc.in24h.windDir)} {trend(fc.in12h.windSpeed,fc.in24h.windSpeed)}</span></div>
-    <div className="wx-row"><span className="wx-l">+48h</span><span className="wx-v">{fc.in48h.windSpeed}kt {degToCompass(fc.in48h.windDir)} {trend(fc.in24h.windSpeed,fc.in48h.windSpeed)}</span></div>
-  </div>;
-}
-
-// ——— DASHBOARD ———
-function Dashboard({locs,forecasts,getWx,getSuit}){
-  const central=getWx(locs.find(l=>l.id==='piraeus_marina')||locs[0])||Object.values(forecasts).find(Boolean);
-  const tonight=useMemo(()=>locs.filter(l=>l.id!=='piraeus_marina')
-    .map(l=>({...l,suit:getSuit(l)})).filter(l=>l.suit.status==='good'||l.suit.status==='caution')
-    .sort((a,b)=>b.suit.score-a.suit.score).slice(0,6),[locs,forecasts]);
-  const tomorrow=useMemo(()=>locs.filter(l=>l.id!=='piraeus_marina')
-    .map(l=>{const fc=getWx(l);const wx24=fc?fc.in24h:null;return {...l,suit:computeSuitability(l,wx24)};})
-    .filter(l=>l.suit.status==='good'||l.suit.status==='caution')
-    .sort((a,b)=>b.suit.score-a.suit.score).slice(0,6),[locs,forecasts]);
-  const stats=useMemo(()=>{
-    const all=locs.filter(l=>l.id!=='piraeus_marina');
-    const good=all.filter(l=>getSuit(l).status==='good').length;
-    const fuel=all.filter(l=>l.services.fuel).length;
-    const overnight=all.filter(l=>l.overnightRecommended).length;
-    return {total:all.length,good,fuel,overnight};
-  },[locs,forecasts]);
-  return <div>
-    <div className="grid2" style={{marginBottom:'1rem'}}>
-      <div className="card"><h3>Wind Conditions</h3><WindBox fc={central}/></div>
-      <div className="card"><h3>Quick Stats</h3>
-        <div className="wx">
-          <div className="wx-row"><span className="wx-l">Locations</span><span className="wx-v">{stats.total}</span></div>
-          <div className="wx-row"><span className="wx-l">Good tonight</span><span className="wx-v" style={{color:'#86efac'}}>{stats.good}</span></div>
-          <div className="wx-row"><span className="wx-l">Fuel stops</span><span className="wx-v">{stats.fuel}</span></div>
-          <div className="wx-row"><span className="wx-l">Overnight safe</span><span className="wx-v">{stats.overnight}</span></div>
+      <aside className={'sb' + (sbOpen ? ' on' : '')}>
+        <div className="sb-hdr">
+          <h1>⛵ Saronic Gulf Sailing Log</h1>
+          <div className="sub">Routes we've sailed · 2024 onwards</div>
         </div>
-      </div>
-    </div>
-    <div className="grid2">
-      <div className="card"><h3>Best Stops Tonight</h3>
-        {tonight.map(l=><div key={l.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.35rem 0',borderBottom:'1px solid #334155',fontSize:'.85rem'}}>
-          <span><b style={{color:'#e2e8f0'}}>{l.name}</b> <span style={{color:'#94a3b8',fontSize:'.78rem'}}>{l.island}</span></span>
-          <SuitBadge s={l.suit}/>
-        </div>)}
-        {tonight.length===0&&<div className="empty">No good stops in current conditions</div>}
-      </div>
-      <div className="card"><h3>Best Stops Tomorrow (+24h)</h3>
-        {tomorrow.map(l=><div key={l.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.35rem 0',borderBottom:'1px solid #334155',fontSize:'.85rem'}}>
-          <span><b style={{color:'#e2e8f0'}}>{l.name}</b> <span style={{color:'#94a3b8',fontSize:'.78rem'}}>{l.island}</span></span>
-          <SuitBadge s={l.suit}/>        </div>)}
-        {tomorrow.length===0&&<div className="empty">No good stops in current conditions</div>}
-      </div>
-    </div>
-  </div>;
-}
 
-// ——— ROUTE PLANNER ———
-function RoutePlanner({locs,forecasts,getSuit,routes,setRoutes,plan,setPlan}){
-  const capo=locs.find(l=>l.id==='piraeus_marina');
-  const cur=routes[plan];
-
-  const setStop=(day,id)=>{
-    setRoutes(p=>{const u=[...p[plan]];u[day]=id||null;return {...p,[plan]:u};});
-  };
-  const removeStop=(day)=>{
-    setRoutes(p=>{const u=[...p[plan]];u[day]=null;return {...p,[plan]:u};});
-  };
-  const moveStop=(day,dir)=>{
-    setRoutes(p=>{
-      const u=[...p[plan]];const j=day+dir;
-      if(j<0||j>5)return p;
-      [u[day],u[j]]=[u[j],u[day]];
-      return {...p,[plan]:u};
-    });
-  };
-
-  // Compute legs
-  const legs=useMemo(()=>{
-    const result=[];let totalNm=0,prevLoc=capo;
-    for(let i=0;i<6;i++){
-      const id=cur[i];
-      const loc=id?locs.find(l=>l.id===id):null;
-      if(loc&&prevLoc){
-        const nm=distNm(prevLoc,loc);totalNm+=nm;
-        const suit=getSuit(loc);
-        const warnings=[];
-        if(nm>20)warnings.push(`Long leg: ${fmtNm(nm)}nm`);
-        if(suit.status==='poor'||suit.status==='avoid')warnings.push(`Destination ${suit.status}: ${suit.reasons[0]}`);
-        if(loc.approachDifficulty==='difficult')warnings.push('Difficult approach');
-        if(loc.settledWeatherOnly)warnings.push('Settled weather only');
-        if(!loc.overnightRecommended)warnings.push('Not recommended overnight');
-        // Depth/draft warnings
-        if(loc.depth&&loc.depth.min!=null){
-          if(loc.depth.min<BOAT_DRAFT&&loc.depth.max<MIN_SAFE_DEPTH)warnings.push(`🚫 TOO SHALLOW: ${loc.depth.min}-${loc.depth.max}m — need ≥${MIN_SAFE_DEPTH}m for ${BOAT_DRAFT}m draft`);
-          else if(loc.depth.min<BOAT_DRAFT)warnings.push(`⚓ Shallow spots: min ${loc.depth.min}m — stay in ${Math.ceil(MIN_SAFE_DEPTH)}m+ zone (draft ${BOAT_DRAFT}m)`);
-          else if(loc.depth.min<MIN_SAFE_DEPTH)warnings.push(`⚓ Tight clearance: ${loc.depth.min}m min, only ${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m under keel`);
-          else if(loc.depth.min<4.0)warnings.push(`Shallow area: ${loc.depth.min}m min (${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m clearance — approach with caution)`);
-        }
-        // Nearest fallback
-        const fallbacks=locs.filter(l=>l.fallbackValue==='high'&&l.id!==loc.id)
-          .map(f=>({...f,d:distNm(loc,f)})).sort((a,b)=>a.d-b.d);
-        if(fallbacks.length>0){const fb=fallbacks[0];warnings.push(`Nearest fallback: ${fb.name} (${fmtNm(fb.d)}nm)`);}
-        result.push({day:i,loc,nm,totalNm,suit,warnings,eta55:eta(nm,5.5),eta65:eta(nm,6.5)});
-        prevLoc=loc;
-      }else{
-        result.push({day:i,loc:null,nm:0,totalNm,suit:null,warnings:[],eta55:'--',eta65:'--'});
-        if(loc)prevLoc=loc;
-      }
-    }
-    // Return leg
-    const lastLoc=cur.slice().reverse().find(Boolean);
-    const last=lastLoc?locs.find(l=>l.id===lastLoc):null;
-    const retNm=last&&capo?distNm(last,capo):0;
-    return {legs:result,totalNm:totalNm+retNm,returnNm:retNm};
-  },[cur,locs,forecasts,getSuit]);
-
-  return <div className="rp">
-    <div className="plan-sel">
-      <button className={`plan-btn ${plan==='A'?'on':''}`} onClick={()=>setPlan('A')}>Plan A</button>
-      <button className={`plan-btn ${plan==='B'?'on':''}`} onClick={()=>setPlan('B')}>Plan B</button>
-    </div>
-    <div style={{fontSize:'.85rem',color:'#94a3b8',marginBottom:'1rem'}}>
-      <b style={{color:'#e2e8f0'}}>Start / Return:</b> Piraeus Marina <span style={{color:'#64748b',fontSize:'.8rem'}}>(Sun departure → Fri return, Sat check-in)</span>
-    </div>
-    {legs.legs.map(({day,loc,nm,suit,warnings,eta55,eta65})=><div key={day} className="day">
-      <div className="day-hdr">
-        <span className="day-num">Day {day+1} <span style={{color:'#94a3b8',fontWeight:400,fontSize:'.8rem'}}>{['Sun','Mon','Tue','Wed','Thu','Fri'][day]}</span></span>
-        {cur[day]&&<div style={{display:'flex',gap:'.3rem'}}>
-          <button className="btn-s" onClick={()=>moveStop(day,-1)}>↑</button>
-          <button className="btn-s" onClick={()=>moveStop(day,1)}>↓</button>
-          <button className="btn-x" onClick={()=>removeStop(day)}>✕</button>
-        </div>}
-      </div>
-      <select value={cur[day]||''} onChange={e=>setStop(day,e.target.value)}>
-        <option value="">— Select stop —</option>
-        {locs.filter(l=>l.id!=='piraeus_marina').map(l=><option key={l.id} value={l.id}>{l.name} ({l.island}){l.overnightRecommended?' ☾':' ⚠ not overnight'}</option>)}
-      </select>
-      {loc&&<div className="leg-info">
-        <div className="leg-row"><span className="leg-l">Distance</span><span className="leg-v">{fmtNm(nm)} nm</span></div>
-        <div className="leg-row"><span className="leg-l">ETA @ 5.5kt</span><span className="leg-v">{eta55}</span></div>
-        <div className="leg-row"><span className="leg-l">ETA @ 6.5kt</span><span className="leg-v">{eta65}</span></div>
-        <div className="leg-row"><span className="leg-l">Suitability</span><span className="leg-v"><SuitBadge s={suit}/></span></div>
-        <div className="leg-row"><span className="leg-l">Holding</span><span className="leg-v">{loc.holdingQuality} • {loc.bottomType}</span></div>
-        <div className="leg-row"><span className="leg-l">Depth</span><span className="leg-v" style={loc.depth.min<MIN_SAFE_DEPTH?{color:loc.depth.min<BOAT_DRAFT?'#ef4444':'#eab308'}:{}}>{loc.depth.min}-{loc.depth.max}m{loc.depth.min<MIN_SAFE_DEPTH?` (${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m clearance)`:''}</span></div>
-      </div>}
-      {warnings.length>0&&<div className="warn">{warnings.map((w,i)=><div key={i}>⚠ {w}</div>)}</div>}
-    </div>)}
-    {legs.returnNm>0&&<div className="day" style={{borderColor:'#475569'}}>
-      <div className="day-hdr"><span className="day-num" style={{color:'#94a3b8'}}>Return to Piraeus</span></div>
-      <div className="leg-info">
-        <div className="leg-row"><span className="leg-l">Distance</span><span className="leg-v">{fmtNm(legs.returnNm)} nm</span></div>
-        <div className="leg-row"><span className="leg-l">ETA @ 5.5kt</span><span className="leg-v">{eta(legs.returnNm,5.5)}</span></div>
-        <div className="leg-row"><span className="leg-l">ETA @ 6.5kt</span><span className="leg-v">{eta(legs.returnNm,6.5)}</span></div>
-      </div>
-    </div>}
-    <div className="totals">
-      <div className="tot-row"><span className="tot-l">Total Trip Distance</span><span className="tot-v">{fmtNm(legs.totalNm)} nm</span></div>
-      <div className="tot-row"><span className="tot-l">Est. Sailing Time @ 5.5kt</span><span className="tot-v">{eta(legs.totalNm,5.5)}</span></div>
-      <div className="tot-row"><span className="tot-l">Est. Sailing Time @ 6.5kt</span><span className="tot-v">{eta(legs.totalNm,6.5)}</span></div>
-      <div className="tot-row"><span className="tot-l">Active stops</span><span className="tot-v">{cur.filter(Boolean).length} / 6</span></div>
-    </div>
-  </div>;
-}
-
-// ——— MAP VIEW ———
-function MapView({locs,forecasts,getSuit,route}){
-  const mapRef=useRef(null);const mapInst=useRef(null);const markersRef=useRef([]);const routeLineRef=useRef(null);
-  const [selected,setSelected]=useState(null);
-  const [filters,setFilters]=useState({goodOnly:false,fuelOnly:false,overnightOnly:false});
-  const capo=locs.find(l=>l.id==='piraeus_marina');
-
-  useEffect(()=>{
-    if(mapRef.current&&!mapInst.current){
-      mapInst.current=L.map(mapRef.current).setView([37.8,23.5],9);
-      // Use CartoDB tiles (no Referer requirement — works from file:// and http://)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',maxZoom:19,subdomains:'abcd'}).addTo(mapInst.current);
-      L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openseamap.org">OpenSeaMap</a>',maxZoom:18,opacity:0.85}).addTo(mapInst.current);
-    }
-  },[]);
-
-  useEffect(()=>{
-    if(!mapInst.current)return;
-    // Clear old markers
-    markersRef.current.forEach(m=>mapInst.current.removeLayer(m));
-    markersRef.current=[];
-    if(routeLineRef.current){mapInst.current.removeLayer(routeLineRef.current);routeLineRef.current=null;}
-
-    const visible=locs.filter(l=>{
-      if(filters.goodOnly){const s=getSuit(l);if(s.status!=='good')return false;}
-      if(filters.fuelOnly&&!l.services.fuel)return false;
-      if(filters.overnightOnly&&!l.overnightRecommended)return false;
-      return true;
-    });
-
-    visible.forEach(loc=>{
-      const s=getSuit(loc);
-      const c=SUIT_COLORS[s.status]||'#475569';
-      const r=loc.type==='marina'?10:loc.type==='port'?8:loc.type==='buoy_field'?7:6;
-      const m=L.circleMarker([locLat(loc),locLng(loc)],{
-        radius:r,fillColor:c,color:'#fff',weight:1.5,opacity:.8,fillOpacity:.85
-      }).addTo(mapInst.current);
-      m.bindTooltip(loc.name,{direction:'top',offset:[0,-8]});
-      m.on('click',()=>setSelected(loc));
-      markersRef.current.push(m);
-    });
-
-    // Draw route
-    if(route&&capo){
-      const pts=[[locLat(capo),locLng(capo)]];
-      route.forEach(id=>{if(id){const l=locs.find(x=>x.id===id);if(l)pts.push([locLat(l),locLng(l)]);}});
-      if(pts.length>1){
-        pts.push([locLat(capo),locLng(capo)]);
-        routeLineRef.current=L.polyline(pts,{color:'#38bdf8',weight:2.5,opacity:.7,dashArray:'8,6'}).addTo(mapInst.current);
-      }
-    }
-  },[locs,forecasts,filters,route]);
-
-  const selSuit=selected?getSuit(selected):null;
-  const selDist=selected&&capo?distNm(capo,selected):0;
-
-  return <div className="map-wrap">
-    <div ref={mapRef} id="map"></div>
-    <div className="map-legend">
-      <h4>Suitability</h4>
-      {[['Good','#22c55e'],['Caution','#eab308'],['Poor','#ef4444'],['Avoid','#64748b']].map(([l,c])=>
-        <div key={l} className="ml-row"><div className="ml-dot" style={{backgroundColor:c}}></div>{l}</div>)}
-      <h4 style={{marginTop:'.5rem'}}>Size = type</h4>
-      <div className="ml-row" style={{fontSize:'.72rem',color:'#94a3b8'}}>Large=marina, Med=port, Small=anchorage</div>
-    </div>
-    <div className="map-filters">
-      <h4>Filters</h4>
-      {[['goodOnly','Good only'],['fuelOnly','Fuel stops'],['overnightOnly','Overnight safe']].map(([k,l])=>
-        <label key={k} className="mf-opt"><input type="checkbox" checked={filters[k]} onChange={()=>setFilters(p=>({...p,[k]:!p[k]}))}/>{l}</label>)}
-    </div>
-    {selected&&<div className="map-panel">
-      <button className="mp-close" onClick={()=>setSelected(null)}>✕</button>
-      <div style={{marginBottom:'.75rem'}}><TypeBadge t={selected.type}/> <SuitBadge s={selSuit}/></div>
-      <h3 style={{fontSize:'1.15rem',color:'#e2e8f0',marginBottom:'.2rem'}}>{selected.name}</h3>
-      <div style={{fontSize:'.85rem',color:'#94a3b8',marginBottom:'1rem'}}>{selected.island} • {fmtNm(selDist)}nm from base</div>
-      <p style={{fontSize:'.85rem',color:'#cbd5e1',marginBottom:'1rem'}}>{selected.description}</p>
-      <div style={{fontSize:'.83rem'}}>
-        <div style={{marginBottom:'.75rem'}}><b style={{color:'#e2e8f0'}}>Why {selSuit.status}:</b><br/>{selSuit.reasons.join('; ')}</div>
-        <div style={{marginBottom:'.5rem'}}><b>Wind protection:</b> {selected.windProtection.protectedFrom.join(', ')||'None'}</div>
-        <div style={{marginBottom:'.5rem'}}><b>Exposed to:</b> {selected.windProtection.exposedTo.join(', ')||'None'}</div>
-        <div style={{marginBottom:'.5rem'}}><b>Depth:</b> {selected.depth.min}-{selected.depth.max}m • <b>Bottom:</b> {selected.bottomType}
-          {selected.depth.min<BOAT_DRAFT&&selected.depth.max<MIN_SAFE_DEPTH&&<span style={{color:'#ef4444',fontWeight:700}}> 🚫 TOO SHALLOW FOR {BOAT_DRAFT}m DRAFT</span>}
-          {selected.depth.min<BOAT_DRAFT&&selected.depth.max>=MIN_SAFE_DEPTH&&<span style={{color:'#eab308',fontWeight:600}}> ⚓ Shallow spots — stay in deep zone</span>}
-          {selected.depth.min>=BOAT_DRAFT&&selected.depth.min<MIN_SAFE_DEPTH&&<span style={{color:'#eab308',fontWeight:600}}> ⚓ Tight clearance ({(selected.depth.min-BOAT_DRAFT).toFixed(1)}m under keel)</span>}
+        <div className="sb-stats">
+          <div className="s"><div className="n">{stats.voyages}</div><div className="l">Voyages</div></div>
+          <div className="s"><div className="n">{stats.days}</div><div className="l">Sailing days</div></div>
+          <div className="s"><div className="n">{stats.nm.toFixed(0)}</div><div className="l">Nautical mi</div></div>
+          <div className="s"><div className="n">{stats.harbors}</div><div className="l">Harbours</div></div>
         </div>
-        <div style={{marginBottom:'.5rem'}}><b>Holding:</b> {selected.holdingQuality} • <b>Approach:</b> {selected.approachDifficulty}</div>
-        <div style={{marginBottom:'.5rem'}}><b>Overnight:</b> {selected.overnightRecommended?'Yes':'No'} • <b>Settled only:</b> {selected.settledWeatherOnly?'Yes':'No'}</div>
-        {selected.hazards.length>0&&<div style={{marginBottom:'.5rem'}}><b>Hazards:</b> {selected.hazards.join(', ')}</div>}
-        <SvcBar s={selected.services}/>
-        <div style={{marginBottom:'.5rem'}}><b>Confidence:</b> {selected.confidence} • <b>Fallback value:</b> {selected.fallbackValue}</div>
-        {selected.navilyUrl&&<a href={selected.navilyUrl} target="_blank" rel="noopener" style={{color:'#38bdf8',fontSize:'.83rem'}}>View on Navily →</a>}
-      </div>
-    </div>}
-  </div>;
-}
 
-// ——— LOCATIONS VIEW with full filters ———
-function LocationsView({locs,forecasts,getSuit,getWx}){
-  const [expanded,setExpanded]=useState(null);
-  const [f,setF]=useState({island:null,type:null,goodNW:false,goodE:false,goodNE:false,overnight:false,settled:false,fuel:false,water:false,elec:false,fallback:false,suitGood:false,suitTomorrow:false,safeDepth:false});
-  const capo=locs.find(l=>l.id==='piraeus_marina');
+        <div className="sb-tabs">
+          <button className={'sb-tab' + (sbTab === 'voyages' ? ' on' : '')} onClick={() => setSbTab('voyages')}>Voyages</button>
+          <button className={'sb-tab' + (sbTab === 'harbors' ? ' on' : '')} onClick={() => setSbTab('harbors')}>Harbours</button>
+        </div>
 
-  const islands=[...new Set(locs.map(l=>l.island))].sort();
-  const types=[...new Set(locs.map(l=>l.type))];
+        <div className="sb-body">
+          {loadErr && <div style={{padding:'1rem',color:'#fca5a5',fontSize:'.8rem'}}>Couldn't load route data: {loadErr}</div>}
+          {!loadErr && trips.length === 0 && <div className="empty" style={{padding:'1rem'}}>Loading routes…</div>}
 
-  const toggle=(k)=>setF(p=>({...p,[k]:!p[k]}));
-  const setIsland=(v)=>setF(p=>({...p,island:p.island===v?null:v}));
-  const setType=(v)=>setF(p=>({...p,type:p.type===v?null:v}));
-  const clearAll=()=>setF({island:null,type:null,goodNW:false,goodE:false,goodNE:false,overnight:false,settled:false,fuel:false,water:false,elec:false,fallback:false,suitGood:false,suitTomorrow:false,safeDepth:false});
-
-  const filtered=useMemo(()=>{
-    return locs.filter(l=>l.id!=='piraeus_marina').filter(l=>{
-      if(f.island&&l.island!==f.island)return false;
-      if(f.type&&l.type!==f.type)return false;
-      if(f.goodNW&&!l.windProtection.protectedFrom.includes('NW'))return false;
-      if(f.goodE&&!l.windProtection.protectedFrom.includes('E'))return false;
-      if(f.goodNE&&!l.windProtection.protectedFrom.includes('NE'))return false;
-      if(f.overnight&&!l.overnightRecommended)return false;
-      if(f.settled&&l.settledWeatherOnly)return false; // exclude settled-only
-      if(f.fuel&&!l.services.fuel)return false;
-      if(f.water&&!l.services.water)return false;
-      if(f.elec&&!l.services.electricity)return false;
-      if(f.fallback&&l.fallbackValue==='none')return false;
-      if(f.safeDepth&&l.depth&&l.depth.min<MIN_SAFE_DEPTH)return false;
-      if(f.suitGood&&getSuit(l).status!=='good')return false;
-      if(f.suitTomorrow){
-        const fc=getWx(l);
-        if(fc){const s=computeSuitability(l,fc.in24h);if(s.status!=='good')return false;}
-      }
-      return true;
-    }).sort((a,b)=>getSuit(b).score-getSuit(a).score);
-  },[locs,f,forecasts]);
-
-  return <div>
-    <div className="fbar">
-      <span style={{fontSize:'.78rem',color:'#94a3b8',fontWeight:600,marginRight:'.3rem'}}>Island:</span>
-      {islands.map(i=><button key={i} className={`fbtn ${f.island===i?'on':''}`} onClick={()=>setIsland(i)}>{i}</button>)}
-      <div className="fsep"/>
-      <span style={{fontSize:'.78rem',color:'#94a3b8',fontWeight:600,marginRight:'.3rem'}}>Type:</span>
-      {types.map(t=><button key={t} className={`fbtn ${f.type===t?'on':''}`} onClick={()=>setType(t)}>{t.replace('_',' ')}</button>)}
-    </div>
-    <div className="fbar">
-      <button className={`fbtn ${f.goodNW?'on':''}`} onClick={()=>toggle('goodNW')}>Good in NW/Mistral</button>
-      <button className={`fbtn ${f.goodE?'on':''}`} onClick={()=>toggle('goodE')}>Good in Easterly</button>
-      <button className={`fbtn ${f.goodNE?'on':''}`} onClick={()=>toggle('goodNE')}>Good in NE/Grecale</button>
-      <div className="fsep"/>
-      <button className={`fbtn ${f.overnight?'on':''}`} onClick={()=>toggle('overnight')}>Overnight safe</button>
-      <button className={`fbtn ${f.settled?'on':''}`} onClick={()=>toggle('settled')}>Exclude settled-only</button>
-      <div className="fsep"/>
-      <button className={`fbtn ${f.fuel?'on':''}`} onClick={()=>toggle('fuel')}>Fuel</button>
-      <button className={`fbtn ${f.water?'on':''}`} onClick={()=>toggle('water')}>Water</button>
-      <button className={`fbtn ${f.elec?'on':''}`} onClick={()=>toggle('elec')}>Electricity</button>
-      <div className="fsep"/>
-      <button className={`fbtn ${f.safeDepth?'on':''}`} onClick={()=>toggle('safeDepth')}>Safe depth (≥{MIN_SAFE_DEPTH}m)</button>
-      <button className={`fbtn ${f.fallback?'on':''}`} onClick={()=>toggle('fallback')}>Fallback stops</button>
-      <button className={`fbtn ${f.suitGood?'on':''}`} onClick={()=>toggle('suitGood')}>Suitable tonight</button>
-      <button className={`fbtn ${f.suitTomorrow?'on':''}`} onClick={()=>toggle('suitTomorrow')}>Suitable tomorrow</button>
-      <div className="fsep"/>
-      <button className="fbtn" onClick={clearAll} style={{color:'#fca5a5'}}>Clear all</button>
-    </div>
-    <div style={{fontSize:'.82rem',color:'#94a3b8',marginBottom:'.75rem'}}>{filtered.length} locations shown</div>
-    <div className="grid3">
-      {filtered.map(loc=>{
-        const s=getSuit(loc);const isExp=expanded===loc.id;
-        const d=capo?distNm(capo,loc):0;
-        return <div key={loc.id} className="loc" onClick={()=>setExpanded(isExp?null:loc.id)}>
-          <div className="loc-hdr">
-            <div className="loc-name">
-              <span className="cdot" style={{background:{high:'#22c55e',medium:'#eab308',low:'#ef4444'}[loc.confidence]}}></span>
-              {loc.name} <span className="loc-island">{loc.island}</span>
+          {sbTab === 'voyages' && voyages.map(v => (
+            <div key={v.id} className="vg">
+              <div className={'vg-hdr' + (selVoyage === v.id ? ' on' : '')} onClick={() => {
+                const next = selVoyage === v.id ? null : v.id;
+                setSelVoyage(next);
+                setSelTrip(null);
+                setSelHarbor(null);
+              }}>
+                <div>
+                  <div className="vg-name"><span className="vg-dot" style={{background: v.color}}></span>{v.name}</div>
+                  <div className="vg-meta">{v.sailingDays} sailing day{v.sailingDays !== 1 ? 's' : ''} · {v.nm.toFixed(0)} nm · {v.season}</div>
+                </div>
+              </div>
+              {v.trips.map(t => (
+                <div key={t.id} className={'tr' + (selTrip === t.id ? ' on' : '')} onClick={() => {
+                  setSelTrip(t.id);
+                  setSelVoyage(v.id);
+                  setSelHarbor(null);
+                }}>
+                  <div className="tr-nm" title={t.name}>
+                    <span className="d">{t.date.slice(5)}</span>{t.name.replace(/ Sailing$/,'')}
+                  </div>
+                  <div className="tr-dist">{t.distance_nm.toFixed(1)} nm</div>
+                </div>
+              ))}
             </div>
-            <SuitBadge s={s}/>
-          </div>
-          <div className="loc-meta"><TypeBadge t={loc.type}/> {s.windInfo} • {fmtNm(d)}nm from base</div>
-          <SvcBar s={loc.services}/>
-          {loc.hazards.length>0&&<div style={{fontSize:'.78rem',color:'#f59e0b',marginBottom:'.3rem'}}>⚠ {loc.hazards.slice(0,2).join(' • ')}</div>}
-          {isExp&&<div className="loc-exp">
-            <div className="row"><span className="lbl">Description</span></div>
-            <div style={{marginBottom:'.5rem',color:'#94a3b8'}}>{loc.description}</div>
-            <div className="row"><span className="lbl">Protected from</span><span className="val">{loc.windProtection.protectedFrom.join(', ')}</span></div>
-            <div className="row"><span className="lbl">Exposed to</span><span className="val">{loc.windProtection.exposedTo.join(', ')}</span></div>
-            <div className="row"><span className="lbl">Depth</span><span className="val" style={loc.depth.min<MIN_SAFE_DEPTH?{color:loc.depth.min<BOAT_DRAFT?'#ef4444':'#eab308'}:{}}>{loc.depth.min}–{loc.depth.max}m{loc.depth.min<MIN_SAFE_DEPTH?` ⚓ ${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m clearance`:''}</span></div>
-            <div className="row"><span className="lbl">Bottom / Holding</span><span className="val">{loc.bottomType} / {loc.holdingQuality}</span></div>
-            <div className="row"><span className="lbl">Approach</span><span className="val">{loc.approachDifficulty}</span></div>
-            <div className="row"><span className="lbl">Overnight</span><span className="val">{loc.overnightRecommended?'✓ Yes':'✗ No'}</span></div>
-            <div className="row"><span className="lbl">Settled only</span><span className="val">{loc.settledWeatherOnly?'Yes':'No'}</span></div>
-            <div className="row"><span className="lbl">Ferry wake</span><span className="val">{loc.ferryWakeSurge?'Yes':'No'}</span></div>
-            <div className="row"><span className="lbl">Cost</span><span className="val">{loc.costLevel||'unknown'}</span></div>
-            <div className="row"><span className="lbl">Fallback value</span><span className="val">{loc.fallbackValue}</span></div>
-            <div className="row"><span className="lbl">Confidence</span><span className="val">{loc.confidence}</span></div>
-            <div className="row"><span className="lbl">Suitability reasons</span><span className="val">{s.reasons.join('; ')}</span></div>
-            {loc.notes&&<div style={{marginTop:'.5rem',padding:'.5rem',background:'#0f172a',borderRadius:'2px',fontSize:'.8rem',color:'#94a3b8'}}>{loc.notes}</div>}
-            {loc.navilyUrl&&<a href={loc.navilyUrl} target="_blank" rel="noopener" style={{color:'#38bdf8',fontSize:'.82rem',display:'block',marginTop:'.5rem'}}>View on Navily →</a>}
-          </div>}
-        </div>;
-      })}
-    </div>
-  </div>;
-}
+          ))}
 
-// ——— COMPARE VIEW ———
-function CompareView({locs,forecasts,getSuit}){
-  const [sel,setSel]=useState([]);
-  const capo=locs.find(l=>l.id==='piraeus_marina');
-  const toggle=(id)=>setSel(p=>p.includes(id)?p.filter(x=>x!==id):p.length<4?[...p,id]:p);
-  const clear=()=>setSel([]);
-  const selLocs=sel.map(id=>locs.find(l=>l.id===id)).filter(Boolean);
-
-  return <div>
-    <div className="fbar" style={{flexWrap:'wrap'}}>
-      <span style={{fontSize:'.82rem',color:'#94a3b8',fontWeight:600}}>Select up to 4:</span>
-      {locs.filter(l=>l.id!=='piraeus_marina').map(l=>
-        <button key={l.id} className={`fbtn ${sel.includes(l.id)?'on':''}`} onClick={()=>toggle(l.id)}>{l.name}</button>
-      )}
-      <div className="fsep"/>
-      <button className="fbtn" onClick={clear} style={{color:'#fca5a5'}}>Clear</button>
-    </div>
-    {selLocs.length===0&&<div className="empty">Select 2–4 locations above to compare</div>}
-    <div className="cmp-grid">
-      {selLocs.map(loc=>{
-        const s=getSuit(loc);const d=capo?distNm(capo,loc):0;
-        const svcCount=Object.values(loc.services).filter(Boolean).length;
-        return <div key={loc.id} className="cmp-card">
-          <h4>{loc.name} <span style={{fontWeight:400,fontSize:'.82rem',color:'#94a3b8'}}>{loc.island}</span></h4>
-          <div className="cmp-row"><span className="cmp-l">Suitability</span><span className="cmp-v"><SuitBadge s={s}/></span></div>
-          <div className="cmp-row"><span className="cmp-l">Score</span><span className="cmp-v">{s.score}/100</span></div>
-          <div className="cmp-row"><span className="cmp-l">Wind</span><span className="cmp-v">{s.windInfo}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Type</span><span className="cmp-v"><TypeBadge t={loc.type}/></span></div>
-          <div className="cmp-row"><span className="cmp-l">Protected</span><span className="cmp-v">{loc.windProtection.protectedFrom.join(', ')}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Exposed</span><span className="cmp-v">{loc.windProtection.exposedTo.join(', ')}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Depth</span><span className="cmp-v" style={loc.depth.min<MIN_SAFE_DEPTH?{color:loc.depth.min<BOAT_DRAFT?'#ef4444':'#eab308'}:{}}>{loc.depth.min}–{loc.depth.max}m{loc.depth.min<MIN_SAFE_DEPTH?` (${(loc.depth.min-BOAT_DRAFT).toFixed(1)}m clearance)`:''}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Bottom</span><span className="cmp-v">{loc.bottomType}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Holding</span><span className="cmp-v">{loc.holdingQuality}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Overnight</span><span className="cmp-v">{loc.overnightRecommended?'✓':'✗'}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Settled only</span><span className="cmp-v">{loc.settledWeatherOnly?'Yes':'No'}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Services</span><span className="cmp-v">{svcCount}/8</span></div>
-          <div className="cmp-row"><span className="cmp-l">Fuel</span><span className="cmp-v">{loc.services.fuel?'✓':'✗'}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Water</span><span className="cmp-v">{loc.services.water?'✓':'✗'}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Electricity</span><span className="cmp-v">{loc.services.electricity?'✓':'✗'}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Distance from base</span><span className="cmp-v">{fmtNm(d)}nm</span></div>
-          <div className="cmp-row"><span className="cmp-l">Approach</span><span className="cmp-v">{loc.approachDifficulty}</span></div>
-          <div className="cmp-row"><span className="cmp-l">Fallback value</span><span className="cmp-v">{loc.fallbackValue}</span></div>
-          {loc.hazards.length>0&&<div className="cmp-row"><span className="cmp-l">Hazards</span><span className="cmp-v" style={{color:'#fcd34d'}}>{loc.hazards.join(', ')}</span></div>}
-          {/* Distances to other selected locations */}
-          {selLocs.filter(o=>o.id!==loc.id).map(o=>
-            <div key={o.id} className="cmp-row"><span className="cmp-l">→ {o.name}</span><span className="cmp-v">{fmtNm(distNm(loc,o))}nm</span></div>
+          {sbTab === 'harbors' && (
+            <>
+              <div className="disclaimer">
+                Harbour names are auto-resolved from coordinates via OpenStreetMap; treat as approximate.
+                Tap a harbour to see when we visited and (where available) community notes.
+              </div>
+              <div style={{padding:'.5rem'}}>
+                {harborsSorted.map(h => {
+                  const lbl = harborLabel(h);
+                  const realVisits = h.visits.filter(v => (v.duration_min || 0) >= 30 || !v.kind);
+                  const visitCount = Math.max(realVisits.length, h.visits.length);
+                  const nv = (h.navily || [])[0];
+                  const rating = nv && navily[nv.id] && navily[nv.id].rating;
+                  return (
+                    <div key={h.id} className={'hr' + (selHarbor === h.id ? ' on' : '')} onClick={() => setSelHarbor(h.id)}>
+                      <div style={{minWidth:0}}>
+                        <div className="hr-nm">
+                          {lbl.name}
+                          {lbl.approx && <span className="hr-approx" title="Auto-geocoded — name approximate">approx.</span>}
+                        </div>
+                        <div className="hr-sub">{harborArea(h)}{rating ? ` · ★ ${rating.toFixed(1)}` : ''}</div>
+                      </div>
+                      <div className="hr-v">{visitCount}×</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
-        </div>;
-      })}
-    </div>
-  </div>;
-}
+        </div>
 
-// ——— FORECAST STATUS BANNER ———
-function ForecastBanner({meta,onRetry,validationIssues}){
-  if(!meta)return null;
-  const ts=meta.timestamp?new Date(meta.timestamp):null;
-  const age=ts?Math.round((Date.now()-meta.timestamp)/60000):null;
-  const stale=age!=null&&age>30;
-  let status,color,bg;
-  if(meta.ok===meta.total){status='Live forecast';color='#86efac';bg='rgba(34,197,94,.08)';}
-  else if(meta.ok>0){status=`Partial forecast (${meta.ok}/${meta.total} clusters)`;color='#fcd34d';bg='rgba(245,158,11,.08)';}
-  else{status='Forecast unavailable — suitability is not live';color='#fca5a5';bg='rgba(239,68,68,.08)';}
-  return <div style={{background:bg,border:`1px solid ${color}33`,padding:'.4rem 1rem',fontSize:'.78rem',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:'.3rem'}}>
-    <span style={{color}}>
-      <b>{status}</b>
-      {stale&&<span style={{color:'#fca5a5'}}> (stale — {age}min ago)</span>}
-      {ts&&!stale&&<span style={{color:'#94a3b8'}}> — updated {ts.toLocaleTimeString()}</span>}
-      {meta.failed>0&&<span style={{color:'#fca5a5'}}> — {meta.failed} cluster(s) failed</span>}
-    </span>
-    <div style={{display:'flex',gap:'.5rem',alignItems:'center'}}>
-      {validationIssues>0&&<span style={{color:'#fcd34d'}}>⚠ {validationIssues} data issue(s)</span>}
-      <button className="btn-s" onClick={onRetry} style={{fontSize:'.72rem'}}>↻ Refresh forecast</button>
-    </div>
-  </div>;
-}
+        <div className="sb-foot">
+          Tracks: {trips.length} GPX file{trips.length !== 1 ? 's' : ''} · Times in UTC.
+        </div>
+      </aside>
 
-// ——— MAIN APP ———
-function App(){
-  const [locs,setLocs]=useState(null);
-  const [forecasts,setForecasts]=useState({});
-  const [fcMeta,setFcMeta]=useState(null);
-  const [clusterInfo,setClusterInfo]=useState(null); // {clusters,locToCluster}
-  const [validationResult,setValidationResult]=useState(null);
-  const [loading,setLoading]=useState(true);
-  const [error,setError]=useState(null);
-  const [tab,setTab]=useState('dashboard');
-  const [routes,setRoutes]=useState({A:Array(6).fill(null),B:Array(6).fill(null)});
-  const [activePlan,setActivePlan]=useState('A');
+      <div className="map-wrap">
+        <div id="map"></div>
+        <div className="legend">
+          <h4>Voyages</h4>
+          {voyages.map(v => (
+            <div key={v.id} className={'legend-row' + (selVoyage === v.id ? ' on' : '')}
+                 onClick={() => { setSelVoyage(selVoyage === v.id ? null : v.id); setSelTrip(null); setSelHarbor(null); }}>
+              <span className="sw" style={{background: v.color}}></span>
+              <span>{v.name}</span>
+            </div>
+          ))}
+          <div style={{marginTop:'.4rem',paddingTop:'.4rem',borderTop:'1px solid #334155'}}>
+            <div className="legend-row">
+              <span className="cdot" style={{background:'#fcd34d',boxShadow:'0 0 0 2px rgba(252,211,77,.5)'}}></span>
+              <span>Frequent harbour</span>
+            </div>
+            <div className="legend-row">
+              <span className="cdot" style={{background:'#38bdf8',boxShadow:'0 0 0 2px rgba(56,189,248,.4)'}}></span>
+              <span>Harbour visited</span>
+            </div>
+          </div>
+        </div>
 
-  const doFetchForecasts=useCallback(async(cls)=>{
-    if(!cls||!cls.clusters)return;
-    const{forecasts:fc,meta}=await fetchAllForecasts(cls.clusters);
-    setForecasts(fc);
-    setFcMeta(meta);
-  },[]);
-
-  useEffect(()=>{
-    (async()=>{
-      const data=await loadLocations();
-      if(!data){setError('Could not load data/locations.json. Serve this folder via HTTP:\n\nbash serve.sh\n\nThen open http://localhost:8080');setLoading(false);return;}
-      // Validate
-      const vr=validateLocations(data);
-      setValidationResult(vr);
-      if(vr.valid.length===0){setError('No valid locations in dataset. Check console for validation errors.');setLoading(false);return;}
-      setLocs(vr.valid);
-      // Build clusters from validated locations
-      const cls=buildForecastClusters(vr.valid);
-      setClusterInfo(cls);
-      // Fetch forecasts
-      const{forecasts:fc,meta}=await fetchAllForecasts(cls.clusters);
-      setForecasts(fc);
-      setFcMeta(meta);
-      setLoading(false);
-    })();
-  },[]);
-
-  const getWx=useCallback((loc)=>{
-    if(!clusterInfo)return null;
-    const cid=clusterInfo.locToCluster[loc.id];
-    return cid?forecasts[cid]||null:null;
-  },[forecasts,clusterInfo]);
-
-  const getSuit=useCallback((loc)=>{
-    const fc=getWx(loc);
-    return computeSuitability(loc,fc?fc.current:null);
-  },[getWx]);
-
-  if(loading)return <div className="app"><div className="hdr"><h1>Saronic Gulf Skipper</h1></div><div className="loading">Loading locations and fetching forecasts...</div></div>;
-  if(error)return <div className="app"><div className="hdr"><h1>Saronic Gulf Skipper</h1></div><div className="main"><div className="err"><pre>{error}</pre></div></div></div>;
-
-  // Find a representative forecast for the header wind display
-  const centralClusterId=clusterInfo?clusterInfo.locToCluster['piraeus_marina']||Object.keys(forecasts).find(k=>forecasts[k]):null;
-  const central=centralClusterId?forecasts[centralClusterId]:Object.values(forecasts).find(Boolean);
-  const valIssues=validationResult?(validationResult.errors.length+validationResult.warnings.length):0;
-
-  return <div className="app">
-    <div className="hdr">
-      <div style={{display:'flex',alignItems:'center'}}>
-        <h1>Saronic Gulf Skipper</h1>
-        {central&&<span className="hdr-wind">
-          <b>{central.current.windSpeed}kt {degToCompass(central.current.windDir)}</b>
-          {central.current.windGust>central.current.windSpeed+3&&` G${central.current.windGust}`}
-          {central.current.waveHeight!=null&&` • ${central.current.waveHeight.toFixed(1)}m`}
-        </span>}
+        {selectedH && (
+          <aside className="dp on">
+            <HarborPanel harbor={selectedH} navily={navily} trips={trips} voyages={voyages} onClose={() => setSelHarbor(null)} />
+          </aside>
+        )}
       </div>
-      <span style={{fontSize:'.78rem',color:'#64748b'}}>Sun Odyssey 440 • Draft {BOAT_DRAFT}m • Piraeus</span>
     </div>
-    <ForecastBanner meta={fcMeta} onRetry={()=>doFetchForecasts(clusterInfo)} validationIssues={valIssues}/>
-    <div className="tabs">
-      {[['dashboard','Dashboard'],['planner','Route Planner'],['map','Map'],['locations','Locations'],['compare','Compare']].map(([k,l])=>
-        <button key={k} className={`tab ${tab===k?'on':''}`} onClick={()=>setTab(k)}>{l}</button>)}
-    </div>
-    <div className="main">
-      {tab==='dashboard'&&<Dashboard locs={locs} forecasts={forecasts} getWx={getWx} getSuit={getSuit}/>}
-      {tab==='planner'&&<RoutePlanner locs={locs} forecasts={forecasts} getSuit={getSuit} routes={routes} setRoutes={setRoutes} plan={activePlan} setPlan={setActivePlan}/>}
-      {tab==='map'&&<MapView locs={locs} forecasts={forecasts} getSuit={getSuit} route={routes[activePlan]}/>}
-      {tab==='locations'&&<LocationsView locs={locs} forecasts={forecasts} getSuit={getSuit} getWx={getWx}/>}
-      {tab==='compare'&&<CompareView locs={locs} forecasts={forecasts} getSuit={getSuit}/>}
-    </div>
-  </div>;
+  );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+function HarborPanel({harbor, navily, trips, voyages, onClose}) {
+  const lbl = harborLabel(harbor);
+  const nvLinks = harbor.navily || [];
+  const bestAnchor = nvLinks
+    .map(l => ({link: l, data: navily[l.id]}))
+    .filter(x => x.data)
+    .sort((a, b) => (b.data.rating || 0) - (a.data.rating || 0))[0];
+  const display = bestAnchor ? bestAnchor.data : (nvLinks.length ? navily[nvLinks[0].id] : null);
+  const displayLink = bestAnchor ? bestAnchor.link : nvLinks[0];
+
+  const visits = harbor.visits.filter(v => (v.duration_min || 0) >= 30 || v.kind);
+  visits.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+
+  const tripById = Object.fromEntries(trips.map(t => [t.id, t]));
+  const voyageOf = tid => voyages.find(v => v.trips.some(t => t.id === tid));
+
+  return (
+    <>
+      <div className="dp-hdr">
+        <div style={{minWidth:0}}>
+          <h2>
+            {lbl.name}
+            {lbl.approx && <span className="approx" title="Auto-geocoded — name approximate">approx.</span>}
+          </h2>
+          <div className="addr">{harborArea(harbor)}</div>
+          <div className="addr" style={{marginTop:'.2rem'}}>{harbor.lat.toFixed(4)}°N, {harbor.lon.toFixed(4)}°E</div>
+        </div>
+        <button className="dp-close" onClick={onClose}>×</button>
+      </div>
+      <div className="dp-body">
+        <section className="dp-section">
+          <h3>Visits ({visits.length})</h3>
+          {visits.length === 0 && <div className="empty">Transit waypoint — no stopover.</div>}
+          {visits.map((v, i) => {
+            const t = tripById[v.trip_id];
+            const voy = voyageOf(v.trip_id);
+            const dateStr = (v.start || '').slice(0, 10);
+            const timeStr = (v.start || '').slice(11, 16);
+            return (
+              <div key={i} className="visit">
+                <div className="vd">
+                  {voy && <span className="vg-dot" style={{display:'inline-block',background:voy.color,width:8,height:8,borderRadius:'50%',marginRight:6,verticalAlign:'middle'}}></span>}
+                  {dateStr} {timeStr && `· ${timeStr}`}
+                </div>
+                <div className="vm">
+                  {v.kind === 'start' && 'Departure'}
+                  {v.kind === 'end' && 'Arrival'}
+                  {!v.kind && v.duration_min > 0 && `Stopped ${formatDuration(v.duration_min)}`}
+                  {t && ` · ${t.name.replace(/ Sailing$/,'')}`}
+                </div>
+              </div>
+            );
+          })}
+        </section>
+
+        {display && (
+          <section className="dp-section">
+            <h3>
+              {display.kind === 'marina' ? 'Marina' : 'Anchorage'} reference
+              <span className="h3-sub">community data, not safety guidance</span>
+            </h3>
+            {display.image && <img className="hero" src={display.image} alt={display.name} onError={e => e.target.style.display='none'}/>}
+            {typeof display.rating === 'number' && display.rating > 0 && (
+              <div className="rating">
+                <div className="n">{display.rating.toFixed(1)}</div>
+                <div className="s">{renderStars(display.rating)}</div>
+                <div className="c">({display.review_count || 0} reviews)</div>
+              </div>
+            )}
+            {display.rank && <div className="rank">Ranked <b>#{display.rank.position}</b> in {display.rank.area}</div>}
+            <div style={{fontSize:'.78rem',color:'#94a3b8',marginBottom:'.5rem'}}>{display.name}</div>
+
+            {display.seabed && display.seabed.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Seabed</div>
+                {display.seabed.map((s, i) => <span key={i} className="chip">{s}</span>)}
+              </div>
+            )}
+
+            {display.mooring && display.mooring.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Mooring</div>
+                {display.mooring.map((s, i) => <span key={i} className={'chip' + (s.includes('forbidden') ? ' warn' : ' ok')}>{s}</span>)}
+              </div>
+            )}
+
+            {display.services && display.services.length > 0 && (
+              <div style={{marginBottom:'.5rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.3rem'}}>Services</div>
+                {display.services.map((s, i) => <span key={i} className="chip">{s}</span>)}
+              </div>
+            )}
+
+            {display.phone && (
+              <div style={{fontSize:'.78rem',color:'#cbd5e1',marginBottom:'.5rem'}}>📞 {display.phone}</div>
+            )}
+
+            <a className="nav-link" href={displayLink.url} target="_blank" rel="noopener">Open on Navily ↗</a>
+            {nvLinks.length > 1 && (
+              <div style={{marginTop:'.5rem',fontSize:'.72rem',color:'#64748b'}}>
+                <div style={{marginBottom:'.2rem'}}>Other nearby Navily spots:</div>
+                {nvLinks.filter(l => l.id !== displayLink.id).map(l => (
+                  <a key={l.id} href={l.url} target="_blank" rel="noopener" style={{display:'block',color:'#93c5fd',textDecoration:'none',padding:'.15rem 0'}}>
+                    {l.name} ({l.kind}) · {l.distance_km} km
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {display.reviews && display.reviews.length > 0 && (
+              <div style={{marginTop:'.75rem'}}>
+                <div style={{fontSize:'.7rem',textTransform:'uppercase',color:'#64748b',marginBottom:'.4rem'}}>Recent reviews</div>
+                {display.reviews.slice(0, 4).map((r, i) => (
+                  <div key={i} className="review">
+                    <div className="ra"><b>{r.author || 'Anonymous'}</b><span>{r.rating.toFixed(1)} ★ · {r.date}</span></div>
+                    {r.body && <div className="rb">{r.body.length > 300 ? r.body.slice(0, 300) + '…' : r.body}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {!display && (
+          <section className="dp-section">
+            <h3>Reference</h3>
+            <div className="empty">No community data matched within 3 km of this point.</div>
+            <a className="nav-link sec" href={`https://www.navily.com/map/@${harbor.lat},${harbor.lon},14z`} target="_blank" rel="noopener">Search on Navily ↗</a>
+          </section>
+        )}
+
+        <section className="dp-section">
+          <h3>External links</h3>
+          <a className="nav-link sec" href={`https://www.openstreetmap.org/?mlat=${harbor.lat}&mlon=${harbor.lon}&zoom=15`} target="_blank" rel="noopener" style={{marginRight:'.4rem'}}>OpenStreetMap ↗</a>
+          <a className="nav-link sec" href={`https://www.windy.com/?${harbor.lat},${harbor.lon},12`} target="_blank" rel="noopener">Windy ↗</a>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function renderStars(rating) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  let s = '';
+  for (let i = 0; i < full; i++) s += '★';
+  if (half) s += '⯨';
+  for (let i = 0; i < 5 - full - (half ? 1 : 0); i++) s += '☆';
+  return s;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
